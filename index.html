@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoAlaya · Calculadora hidropónica</title>
+  <meta name="description" content="Calcula tu solución nutritiva, registra tu cultivo hidropónico y gana puntos EcoAlaya.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div>
+      <h1>EcoAlaya</h1>
+      <p>Tu huerto hidropónico en casa</p>
+    </div>
+    <span id="saldo-cabecera" class="insignia">0 pts</span>
+  </header>
+
+  <nav role="tablist" class="pestanas">
+    <button role="tab" aria-selected="true" aria-controls="p-calc">Calculadora</button>
+    <button role="tab" aria-selected="false" aria-controls="p-sistemas">Mis sistemas</button>
+    <button role="tab" aria-selected="false" aria-controls="p-registro">Registro</button>
+    <button role="tab" aria-selected="false" aria-controls="p-puntos">Puntos</button>
+  </nav>
+
+  <main>
+    <section id="p-calc" role="tabpanel">
+      <h2>Dosis de solución nutritiva</h2>
+      <form id="form-calc" class="formulario">
+        <label>Agua en el tanque (litros)
+          <input name="litros" type="number" min="0.1" step="0.1" value="20" required>
+        </label>
+        <label>Cultivo <select name="cultivo"></select></label>
+        <label>Fórmula <select name="formula"></select></label>
+        <div id="calc-personalizada" class="fila" hidden>
+          <label>mL/L de A <input name="mlA" type="number" min="0" step="0.1" value="5"></label>
+          <label>mL/L de B <input name="mlB" type="number" min="0" step="0.1" value="2"></label>
+        </div>
+        <label>Etapa <select name="etapa"></select></label>
+        <button type="submit">Calcular</button>
+      </form>
+      <div id="calc-resultado" class="resultado" aria-live="polite"></div>
+    </section>
+
+    <section id="p-sistemas" role="tabpanel" hidden>
+      <h2>Mis sistemas</h2>
+      <div id="lista-sistemas" class="tarjetas"></div>
+      <h3>Registrar un sistema</h3>
+      <form id="form-sistema" class="formulario">
+        <label>Nombre <input name="nombre" required placeholder="Ej.: Torre del balcón"></label>
+        <label>Tipo
+          <select name="tipo">
+            <option>Sistema familiar NFT</option>
+            <option>Torre vertical</option>
+            <option>Raíz flotante</option>
+            <option>Otro</option>
+          </select>
+        </label>
+        <label>Cultivo <select name="cultivo"></select></label>
+        <div class="fila">
+          <label>Tanque (L) <input name="litros" type="number" min="1" step="1" value="20" required></label>
+          <label>Fecha de siembra <input name="inicio" type="date" required></label>
+        </div>
+        <button type="submit">Registrar sistema</button>
+      </form>
+    </section>
+
+    <section id="p-registro" role="tabpanel" hidden>
+      <h2>Medición semanal</h2>
+      <form id="form-medicion" class="formulario">
+        <label>Sistema <select name="sistema" required></select></label>
+        <div class="fila">
+          <label>pH <input name="ph" type="number" min="0" max="14" step="0.1" required></label>
+          <label>EC (mS/cm) <input name="ec" type="number" min="0" max="10" step="0.1" required></label>
+        </div>
+        <div class="fila">
+          <label>Temp. agua (°C) <input name="temp" type="number" min="0" max="50" step="0.5"></label>
+          <label>Fecha <input name="fecha" type="date" required></label>
+        </div>
+        <button type="submit">Guardar medición</button>
+      </form>
+      <div id="medicion-resultado" class="resultado" aria-live="polite"></div>
+
+      <h2>Registrar cosecha</h2>
+      <form id="form-cosecha" class="formulario">
+        <label>Sistema <select name="sistema" required></select></label>
+        <div class="fila">
+          <label>Peso (g) <input name="gramos" type="number" min="1" step="1" required></label>
+          <label>Fecha <input name="fecha" type="date" required></label>
+        </div>
+        <label>Nota <input name="nota" placeholder="Ej.: 6 lechugas grandes"></label>
+        <button type="submit">Guardar cosecha</button>
+      </form>
+
+      <h3>Historial</h3>
+      <ul id="historial" class="lista"></ul>
+    </section>
+
+    <section id="p-puntos" role="tabpanel" hidden>
+      <div class="resumen">
+        <div><span id="saldo" class="cifra">0</span><small>puntos EcoAlaya</small></div>
+        <div><span id="total-cosecha" class="cifra">0</span><small>kg cosechados</small></div>
+      </div>
+      <h2>Canjea tus puntos</h2>
+      <ul id="recompensas" class="lista recompensas"></ul>
+      <h3>Cómo ganar puntos</h3>
+      <ul class="lista">
+        <li>Registrar un sistema <b class="pos">+50</b></li>
+        <li>Medición semanal de pH y EC <b class="pos">+10</b></li>
+        <li>Medición con todo en rango <b class="pos">+5 extra</b></li>
+        <li>Registrar una cosecha <b class="pos">+100</b></li>
+      </ul>
+      <h3>Movimientos</h3>
+      <ul id="movimientos" class="lista"></ul>
+      <div class="fila respaldo">
+        <button type="button" id="exportar" class="secundario">Exportar respaldo</button>
+        <label class="boton secundario">Importar respaldo <input id="importar" type="file" accept="application/json" hidden></label>
+      </div>
+    </section>
+  </main>
+
+  <div id="aviso" class="aviso" role="status" hidden></div>
+
+  <script src="js/calc.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

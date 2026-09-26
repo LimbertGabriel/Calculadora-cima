@@ -1,0 +1,175 @@
+:root {
+  --verde: #2e7d4f;
+  --verde-claro: #e6f3ea;
+  --texto: #1d2b22;
+  --suave: #5b6b60;
+  --fondo: #f7faf7;
+  --tarjeta: #ffffff;
+  --borde: #d5e2d8;
+  --error: #b3261e;
+  --alerta: #9a6700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --verde: #5fbf85;
+    --verde-claro: #1f3327;
+    --texto: #e4eee7;
+    --suave: #a3b5a8;
+    --fondo: #111814;
+    --tarjeta: #19221c;
+    --borde: #2c3a31;
+    --error: #f2b8b5;
+    --alerta: #e8c26a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.45;
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--verde);
+  color: #fff;
+}
+.cabecera h1 { margin: 0; font-size: 1.4rem; }
+.cabecera p { margin: 0; opacity: 0.85; font-size: 0.9rem; }
+
+.insignia {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.pestanas {
+  display: flex;
+  overflow-x: auto;
+  background: var(--tarjeta);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+}
+.pestanas button {
+  flex: 1;
+  padding: 12px 4px;
+  border: 0;
+  background: none;
+  color: var(--suave);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pestanas button[aria-selected="true"] {
+  color: var(--verde);
+  border-bottom-color: var(--verde);
+}
+
+main { max-width: 640px; margin: 0 auto; padding: 16px; }
+h2 { font-size: 1.15rem; margin: 8px 0 12px; }
+h3 { font-size: 1rem; margin: 20px 0 8px; }
+
+.formulario { display: grid; gap: 12px; }
+.formulario label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--suave); }
+.fila { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fila[hidden] { display: none; }
+
+input, select {
+  font: inherit;
+  padding: 10px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--tarjeta);
+  color: var(--texto);
+  width: 100%;
+}
+
+button, .boton {
+  font: inherit;
+  font-weight: 600;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--verde);
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+.secundario { background: var(--verde-claro); color: var(--verde); }
+
+.resultado:not(:empty) {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--verde-claro);
+  border-radius: 12px;
+}
+.dosis { display: flex; gap: 24px; text-align: center; justify-content: center; }
+.cifra { font-size: 2rem; font-weight: 700; color: var(--verde); }
+.rango { font-weight: 600; }
+.error { color: var(--error); }
+.ok { color: var(--verde); font-weight: 600; margin: 0; }
+.consejos { margin: 0; padding-left: 20px; color: var(--alerta); }
+
+.tarjetas { display: grid; gap: 12px; }
+.tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.tarjeta h3 { margin: 0 0 4px; }
+.tarjeta p { margin: 2px 0; color: var(--suave); font-size: 0.9rem; }
+
+.lista { list-style: none; padding: 0; margin: 0; }
+.lista li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: 0.92rem;
+}
+.lista .texto { flex: 1; }
+.lista time { color: var(--suave); font-size: 0.8rem; flex-shrink: 0; }
+.recompensas button { padding: 8px 14px; }
+.pos { color: var(--verde); }
+.neg { color: var(--error); }
+.vacio { color: var(--suave); }
+
+.resumen { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center; }
+.resumen > div {
+  background: var(--verde-claro);
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+}
+.respaldo { margin-top: 20px; }
+
+.aviso {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--texto);
+  color: var(--fondo);
+  padding: 12px 16px;
+  border-radius: 10px;
+  text-align: center;
+}

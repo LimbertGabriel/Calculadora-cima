@@ -1,0 +1,9 @@
+{
+  "name": "ecoalaya-calculadora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Calculadora de solución nutritiva, registro de cultivo y puntos EcoAlaya",
+  "scripts": {
+    "test": "node --test"
+  }
+}
