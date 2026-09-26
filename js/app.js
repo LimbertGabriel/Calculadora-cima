@@ -69,6 +69,7 @@
       boton.addEventListener('click', () => {
         document.querySelectorAll('[role="tab"]').forEach((b) => b.setAttribute('aria-selected', b === boton));
         document.querySelectorAll('[role="tabpanel"]').forEach((p) => { p.hidden = p.id !== boton.getAttribute('aria-controls'); });
+        window.scrollTo(0, 0);
       });
     });
   }
@@ -274,6 +275,16 @@
     renderRegistro();
     renderPuntos();
   }
+
+  // Puente para el juego: sus logros suman puntos EcoAlaya reales.
+  window.EcoApp = {
+    aviso,
+    otorgarPuntos(puntos, motivo) {
+      sumarPuntos(puntos, motivo);
+      guardar();
+      render();
+    },
+  };
 
   iniciarPestanas();
   iniciarCalculadora();

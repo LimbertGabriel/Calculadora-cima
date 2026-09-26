@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EcoAlaya · Calculadora hidropónica</title>
-  <meta name="description" content="Calcula tu solución nutritiva, registra tu cultivo hidropónico y gana puntos EcoAlaya.">
+  <title>EcoAlaya · Mi huerto hidropónico</title>
+  <meta name="description" content="Juega a cultivar en hidroponía, calcula tu solución nutritiva, registra tu cultivo y gana puntos EcoAlaya.">
+  <meta name="theme-color" content="#2e7d4f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icono-192.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -16,15 +20,51 @@
     <span id="saldo-cabecera" class="insignia">0 pts</span>
   </header>
 
-  <nav role="tablist" class="pestanas">
-    <button role="tab" aria-selected="true" aria-controls="p-calc">Calculadora</button>
-    <button role="tab" aria-selected="false" aria-controls="p-sistemas">Mis sistemas</button>
-    <button role="tab" aria-selected="false" aria-controls="p-registro">Registro</button>
-    <button role="tab" aria-selected="false" aria-controls="p-puntos">Puntos</button>
-  </nav>
 
   <main>
-    <section id="p-calc" role="tabpanel">
+    <section id="p-huerto" role="tabpanel">
+      <div class="estado-juego">
+        <div><small>Día</small><b id="j-dia">1</b></div>
+        <div class="nivel"><small>Nivel <b id="j-nivel">1</b></small><div class="barra-xp"><span id="j-xp"></span></div></div>
+        <div><small>Monedas</small><b id="j-monedas">0</b></div>
+      </div>
+
+      <div id="escena" class="escena" aria-label="Tu sistema hidropónico. Toca una maceta para sembrar o cosechar."></div>
+
+      <div id="diagnostico" class="diagnostico" aria-live="polite"></div>
+
+      <div id="medidores" class="medidores"></div>
+
+      <div id="acciones" class="acciones"></div>
+      <button type="button" id="pasar-dia" class="pasar-dia">Pasar al día siguiente</button>
+
+      <div id="eventos" class="eventos" aria-live="polite"></div>
+
+      <h2>Tienda de mejoras</h2>
+      <div id="tienda" class="tienda"></div>
+
+      <h2>Logros</h2>
+      <p class="nota">Cada logro te da <b>puntos EcoAlaya reales</b>, canjeables por productos.</p>
+      <ul id="logros" class="lista logros"></ul>
+
+      <div class="cta">
+        <h3>¿Listo para cultivar de verdad?</h3>
+        <p>Todo lo que aprendes aquí funciona igual en un sistema hidropónico familiar EcoAlaya.</p>
+        <a id="cta-sistema" class="boton" target="_blank" rel="noopener">Quiero mi sistema EcoAlaya</a>
+      </div>
+
+      <details class="aprende">
+        <summary>Aprende: ¿qué significa cada medida?</summary>
+        <p><b>pH</b>: qué tan ácida está el agua. Entre 5.5 y 6.5 las raíces absorben bien los nutrientes. Con el tiempo el pH sube solo, por eso se corrige con “pH down”.</p>
+        <p><b>EC</b> (conductividad eléctrica): cuánta comida hay en el agua. Las plantas la consumen, así que baja; pero si el agua se evapora, las sales se concentran y sube.</p>
+        <p><b>Nivel</b>: las plantas beben y el agua se evapora. Si baja mucho, las raíces se secan.</p>
+        <p><b>Temperatura</b>: el agua caliente tiene menos oxígeno y atrae plagas. Lo ideal es 16–26 °C.</p>
+        <p><b>Cultivos en el mismo tanque</b>: comparten el agua, así que conviene juntar cultivos con rangos parecidos (por ejemplo lechuga y albahaca; no lechuga y tomate).</p>
+      </details>
+      <button type="button" id="reiniciar" class="enlace">Reiniciar juego</button>
+    </section>
+
+    <section id="p-calc" role="tabpanel" hidden>
       <h2>Dosis de solución nutritiva</h2>
       <form id="form-calc" class="formulario">
         <label>Agua en el tanque (litros)
@@ -119,9 +159,24 @@
     </section>
   </main>
 
+  <nav role="tablist" class="pestanas" aria-label="Secciones">
+    <button role="tab" aria-selected="true" aria-controls="p-huerto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c0-9 5-15 15-16-1 10-7 15-15 16zM5 21l8-8"/></svg><span>Huerto</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-calc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6zM9 7h6M9 12h1M14 12h1M9 16h1M14 16h1"/></svg><span>Calcular</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-sistemas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20V9h12v11M9 9V5h6v4"/></svg><span>Sistemas</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-registro"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v17H7zM10 3h4v3h-4zM10 11h4M10 15h4"/></svg><span>Registro</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-puntos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Puntos</span></button>
+  </nav>
+
+  <dialog id="hoja" class="hoja"></dialog>
   <div id="aviso" class="aviso" role="status" hidden></div>
 
   <script src="js/calc.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/juego.js"></script>
+  <script src="js/juego-ui.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  </script>
 </body>
 </html>
