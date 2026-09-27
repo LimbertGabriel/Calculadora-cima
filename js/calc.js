@@ -11,14 +11,17 @@
     personalizada: { nombre: 'Personalizada', ml: null },
   };
 
-  // Rangos orientativos de pH y conductividad eléctrica (EC, mS/cm).
+  // Hidroponía CIMA trabaja todos sus cultivos con la misma solución A + B + C y el mismo pH.
+  // EC: la solución a 5 mL/L de cada parte queda cerca de 1.4 mS/cm.
+  const SOLUCION_CIMA = { ph: [5.5, 6.5], ec: [1.0, 1.8] };
+  const cultivo = (nombre, dias) => ({ nombre, ph: SOLUCION_CIMA.ph, ec: SOLUCION_CIMA.ec, dias });
   const CULTIVOS = {
-    lechuga: { nombre: 'Lechuga', ph: [5.5, 6.5], ec: [0.8, 1.2], dias: 45 },
-    acelga: { nombre: 'Acelga', ph: [6.0, 6.5], ec: [1.8, 2.3], dias: 60 },
-    kale: { nombre: 'Kale', ph: [5.5, 6.5], ec: [1.2, 1.5], dias: 60 },
-    apio: { nombre: 'Apio', ph: [6.3, 6.7], ec: [1.8, 2.4], dias: 90 },
-    fresa: { nombre: 'Fresa', ph: [5.5, 6.2], ec: [1.0, 1.5], dias: 90 },
-    tomate: { nombre: 'Tomate', ph: [5.5, 6.5], ec: [2.0, 3.5], dias: 100 },
+    lechuga: cultivo('Lechuga', 45),
+    acelga: cultivo('Acelga', 60),
+    kale: cultivo('Kale', 60),
+    apio: cultivo('Apio', 90),
+    fresa: cultivo('Fresa', 90),
+    tomate: cultivo('Tomate', 100),
   };
 
   // Fracción de la dosis completa según la etapa del cultivo.
@@ -107,7 +110,7 @@
   }
 
   const api = {
-    PARTES, FORMULAS, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
+    PARTES, FORMULAS, SOLUCION_CIMA, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
     calcularDosis, llenadosPorJuego, cultivoActual, evaluarMedicion, puntosPorMedicion, saldo,
   };
 

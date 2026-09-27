@@ -134,7 +134,7 @@
           </ol>
           <p class="aviso-quimico">Nunca mezcles los concentrados entre sí: el calcio de la C se junta con el fosfato de la A y el sulfato de la B y forma un sólido que las plantas no pueden absorber.</p>
           <p class="aviso-quimico"><b>Ajuste de pH:</b> si está alto, agrega ácido nítrico diluido gota a gota; si está bajo, agrega agua (o unas gotas de hidróxido de potasio). El ácido nítrico es corrosivo: usa guantes y lentes, y vierte siempre el ácido sobre el agua, nunca al revés.</p>
-          <p class="rango">Rango ideal para ${escapar(c.nombre)}: pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]} mS/cm</p>
+          <p class="rango">Rango ideal para ${escapar(c.nombre)}: pH ${c.ph[0].toFixed(1)}–${c.ph[1].toFixed(1)} · EC ${c.ec[0].toFixed(1)}–${c.ec[1].toFixed(1)} mS/cm</p>
           ${juegos ? `<h3 class="titulo-seccion">¿Cuánto te rinde cada juego de nutrientes?</h3><ul class="lista">${juegos}</ul>` : ''}`;
       } catch (err) {
         salida.innerHTML = `<p class="error">${escapar(err.message)}</p>`;

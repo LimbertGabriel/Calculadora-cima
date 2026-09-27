@@ -63,12 +63,14 @@ test('rellenar agua diluye la EC', () => {
   assert.strictEqual(j.agua.ec, 0.8);
 });
 
-test('mezclar cultivos incompatibles se detecta', () => {
+test('todos los cultivos comparten la solución CIMA', () => {
   const j = J.nuevoJuego(1);
   j.xp = 1000;
   J.sembrar(j, 0, 'lechuga');
   J.sembrar(j, 1, 'tomate');
-  assert.strictEqual(J.rangoTanque(j).compatible, false);
+  const r = J.rangoTanque(j);
+  assert.strictEqual(r.compatible, true);
+  assert.deepStrictEqual([r.ph, r.ec], [[5.5, 6.5], [1.0, 1.8]]);
 });
 
 test('módulo extra agrega 3 macetas', () => {

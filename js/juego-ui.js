@@ -471,7 +471,7 @@
     }
     if (r.compatible) {
       html += `<div class="objetivo">Objetivo para ${enumerar(r.cultivos)}:
-        <span class="chip">pH ${r.ph[0]}–${r.ph[1]}</span><span class="chip">EC ${r.ec[0]}–${r.ec[1]}</span></div>`;
+        <span class="chip">pH ${r.ph[0].toFixed(1)}–${r.ph[1].toFixed(1)}</span><span class="chip">EC ${r.ec[0].toFixed(1)}–${r.ec[1].toFixed(1)}</span></div>`;
     }
     el.className = `diagnostico ${clase}`;
     el.innerHTML = html.replace(/<p>/g, '<p style="margin:0">');
@@ -564,7 +564,7 @@
         const bloqueada = nivel < p.nivel;
         return `<li class="semilla ${bloqueada ? 'bloqueada' : ''}">
           <span class="semilla-dibujo">${dibujoCultivo(id)}</span>
-          <span><b>${c.nombre}</b><small>${bloqueada ? `Se desbloquea en el nivel ${p.nivel}` : `${p.dias} días · pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]}<br>Se vende en ~${p.precio} monedas`}</small></span>
+          <span><b>${c.nombre}</b><small>${bloqueada ? `Se desbloquea en el nivel ${p.nivel}` : `${p.dias} días · pH ${c.ph[0].toFixed(1)}–${c.ph[1].toFixed(1)} · EC ${c.ec[0].toFixed(1)}–${c.ec[1].toFixed(1)}<br>Se vende en ~${p.precio} monedas`}</small></span>
           <button type="button" data-sembrar="${id}" ${bloqueada || juego.monedas < p.semilla ? 'disabled' : ''} aria-label="${bloqueada ? 'Bloqueado' : `Sembrar por ${p.semilla} monedas`}">${bloqueada ? icono('candado') : moneda(p.semilla)}</button>
         </li>`;
       }).join('')}</ul>`;
@@ -575,7 +575,7 @@
       const colorSalud = m.salud >= 70 ? 'var(--ok)' : m.salud >= 40 ? 'var(--aviso)' : 'var(--mal)';
       html = `<h2>${c.nombre}${m.muerta ? ' (muerta)' : listo ? ' · ¡lista!' : ''}</h2>
         <div class="anillos">${anillo(m.crecimiento, 'Crecimiento', 'var(--hoja)')}${anillo(m.salud, 'Salud', colorSalud)}</div>
-        <p class="nota">Día ${m.dias} de ~${J.PLANTAS[m.cultivo].dias}. Ideal: pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]}.</p>
+        <p class="nota">Día ${m.dias} de ~${J.PLANTAS[m.cultivo].dias}. Ideal: pH ${c.ph[0].toFixed(1)}–${c.ph[1].toFixed(1)} · EC ${c.ec[0].toFixed(1)}–${c.ec[1].toFixed(1)}.</p>
         ${problemas.length ? `<ul class="consejos">${problemas.join('')}</ul>` : ''}
         ${listo ? `<button type="button" data-cosechar class="grande">${icono('check')}Cosechar</button>` : ''}
         <button type="button" data-retirar class="secundario grande">${m.muerta ? 'Retirar planta muerta' : 'Arrancar planta'}</button>`;
