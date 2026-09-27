@@ -4,6 +4,7 @@ name: APK Android
 on:
   push:
     branches: [main, claude/ecoalaya-token-hydroponics-vbje8v]
+    paths-ignore: ['**.md']
   workflow_dispatch:
 
 permissions:
@@ -56,10 +57,13 @@ jobs:
       - name: Publicar en Releases (apk-latest)
         env:
           GH_TOKEN: ${{ github.token }}
+          TITULO: EcoAlaya APK (versión 1.0.${{ github.run_number }})
         run: |
-          gh release delete apk-latest --cleanup-tag --yes || true
-          gh release create apk-latest EcoAlaya.apk \
-            --target "$GITHUB_SHA" \
-            --prerelease \
-            --title "EcoAlaya APK (versión 1.0.${{ github.run_number }})" \
-            --notes "APK de prueba generado desde la rama ${GITHUB_REF_NAME} (commit ${GITHUB_SHA::7}). Descárgalo en tu celular Android y permite instalar apps de fuentes desconocidas."
+          NOTAS="APK de prueba generado desde la rama ${GITHUB_REF_NAME} (commit ${GITHUB_SHA::7}). Descárgalo en tu celular Android y permite instalar apps de fuentes desconocidas."
+          if gh release view apk-latest > /dev/null 2>&1; then
+            # Reemplaza solo el archivo, sin borrar el release, para no cortar descargas en curso.
+            gh release upload apk-latest EcoAlaya.apk --clobber
+            gh release edit apk-latest --title "$TITULO" --notes "$NOTAS"
+          else
+            gh release create apk-latest EcoAlaya.apk --target "$GITHUB_SHA" --prerelease --title "$TITULO" --notes "$NOTAS"
+          fi
