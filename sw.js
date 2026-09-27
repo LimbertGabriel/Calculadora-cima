@@ -1,6 +1,6 @@
 // Service worker: permite usar la app sin internet.
 // Sirve desde caché al instante y actualiza en segundo plano (la versión nueva se ve en la siguiente visita).
-const CACHE = 'ecoalaya-v3';
+const CACHE = 'ecoalaya-v4';
 const ARCHIVOS = [
   './',
   'index.html',
@@ -14,6 +14,11 @@ const ARCHIVOS = [
   'icons/icono.svg',
   'icons/icono-192.png',
   'icons/icono-512.png',
+  'fonts/baloo-2-latin-600-normal.woff2',
+  'fonts/baloo-2-latin-800-normal.woff2',
+  'fonts/figtree-latin-400-normal.woff2',
+  'fonts/figtree-latin-600-normal.woff2',
+  'fonts/figtree-latin-700-normal.woff2',
 ];
 
 self.addEventListener('install', (ev) => {

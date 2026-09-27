@@ -114,8 +114,8 @@
         const c = C.CULTIVOS[form.cultivo.value];
         salida.innerHTML = `
           <div class="dosis">
-            <div><span class="cifra">${d.mlA}</span> mL<br><small>Solución A</small></div>
-            <div><span class="cifra">${d.mlB}</span> mL<br><small>Solución B</small></div>
+            <div><small>Solución A</small><span class="cifra">${d.mlA}</span><span class="unidad">mL</span></div>
+            <div><small>Solución B</small><span class="cifra">${d.mlB}</span><span class="unidad">mL</span></div>
           </div>
           <p>Para ${escapar(form.litros.value)} L de agua (${d.porLitroA} mL/L de A y ${d.porLitroB} mL/L de B).
           Agrega primero la A, mezcla bien y luego la B; nunca las mezcles puras.</p>
@@ -153,16 +153,18 @@
   function renderSistemas() {
     const lista = $('#lista-sistemas');
     if (!estado.sistemas.length) {
-      lista.innerHTML = '<p class="vacio">Aún no registras ningún sistema.</p>';
+      lista.innerHTML = '<p class="vacio tarjeta" style="padding:16px;margin:0">Aún no registras ningún sistema. Registra el tuyo abajo para seguir su cosecha.</p>';
       return;
     }
     lista.innerHTML = estado.sistemas.map((s) => {
       const c = C.CULTIVOS[s.cultivo];
       const dias = Math.floor((Date.now() - new Date(s.inicio)) / 86400000);
       const ultima = estado.mediciones.filter((m) => m.sistema === s.id).at(-1);
-      return `<article class="tarjeta">
-        <h3>${escapar(s.nombre)}</h3>
+      const avance = Math.min(100, Math.round((Math.max(dias, 0) / c.dias) * 100));
+      return `<article class="tarjeta sistema">
+        <div class="sistema-cab"><h3>${escapar(s.nombre)}</h3><b>${avance} %</b></div>
         <p>${escapar(s.tipo)} · ${escapar(c.nombre)} · ${s.litros} L</p>
+        <div class="progreso" role="progressbar" aria-valuenow="${avance}" aria-valuemin="0" aria-valuemax="100"><span style="width:${avance}%"></span></div>
         <p>Día ${Math.max(dias, 0)} de ~${c.dias} hasta la cosecha</p>
         <p>${ultima ? `Última medición: pH ${ultima.ph} · EC ${ultima.ec}` : 'Sin mediciones todavía'}</p>
       </article>`;
@@ -229,15 +231,19 @@
   function renderPuntos() {
     const total = C.saldo(estado.movimientos);
     $('#saldo').textContent = total;
-    $('#saldo-cabecera').textContent = `${total} pts`;
+    $('#saldo-cabecera').textContent = total;
     const cosechado = estado.cosechas.reduce((t, c) => t + c.gramos, 0);
     $('#total-cosecha').textContent = (cosechado / 1000).toFixed(2);
 
-    $('#recompensas').innerHTML = C.RECOMPENSAS.map((r) => `
-      <li>
-        <span>${escapar(r.nombre)}<br><small>${r.costo} pts</small></span>
+    $('#recompensas').innerHTML = C.RECOMPENSAS.map((r) => {
+      const avance = Math.min(100, Math.round((total / r.costo) * 100));
+      return `<li class="recompensa">
+        <span class="recompensa-icono"><svg aria-hidden="true"><use href="#i-regalo"/></svg></span>
+        <span><b>${escapar(r.nombre)}</b><small>${total >= r.costo ? `${r.costo} pts · ¡ya puedes canjearlo!` : `${total} de ${r.costo} pts`}</small>
+          <span class="progreso"><span style="width:${avance}%"></span></span></span>
         <button type="button" data-canje="${r.id}" ${total < r.costo ? 'disabled' : ''}>Canjear</button>
-      </li>`).join('');
+      </li>`;
+    }).join('');
 
     $('#movimientos').innerHTML = estado.movimientos.slice().reverse().slice(0, 20)
       .map((m) => `<li><time>${m.fecha}</time><span class="texto">${escapar(m.motivo)}</span><b class="${m.puntos < 0 ? 'neg' : 'pos'}">${m.puntos > 0 ? '+' : ''}${m.puntos}</b></li>`)

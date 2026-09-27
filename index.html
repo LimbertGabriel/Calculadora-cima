@@ -2,156 +2,232 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>EcoAlaya · Mi huerto hidropónico</title>
   <meta name="description" content="Juega a cultivar en hidroponía, calcula tu solución nutritiva, registra tu cultivo y gana puntos EcoAlaya.">
-  <meta name="theme-color" content="#2e7d4f">
+  <meta name="theme-color" content="#1d6b3d">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icono.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icono-192.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Íconos de la app (se usan con <svg><use href="#i-..."></svg>) -->
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-hoja" viewBox="0 0 24 24"><path d="M5 20c0-9 5-15 15-16-1 10-7 15-15 16z"/><path d="M5 20l8-8"/></symbol>
+    <symbol id="i-calculadora" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7h7M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/></symbol>
+    <symbol id="i-sistema" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="4" rx="2"/><path d="M7 11V9M12 11V8M17 11V9M5 15v5h14v-5"/><path d="M7 9c-1.5-.5-2-2-2-3 1.5 0 2.5 1 2 3zM12 8c0-2 1-3.5 2.5-4 .3 1.8-.8 3.5-2.5 4zM17 9c1.5-.5 2-2 2-3-1.5 0-2.5 1-2 3z"/></symbol>
+    <symbol id="i-registro" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h4.5"/></symbol>
+    <symbol id="i-estrella" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/></symbol>
+    <symbol id="i-moneda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M14.6 9.4c-.5-.8-1.5-1.2-2.6-1.2-1.4 0-2.5.7-2.5 1.8 0 2.5 5.3 1.4 5.3 4 0 1.1-1.1 1.9-2.7 1.9-1.2 0-2.2-.5-2.7-1.3"/></symbol>
+    <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3c3.3 4.2 6.2 7.7 6.2 11.2a6.2 6.2 0 0 1-12.4 0C5.8 10.7 8.7 7.2 12 3z"/></symbol>
+    <symbol id="i-bajar" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+    <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+    <symbol id="i-olas" viewBox="0 0 24 24"><path d="M3 9.5c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 15.5c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
+    <symbol id="i-ciclo" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1L20 9.5M19.5 12a7.5 7.5 0 0 1-13 5.1L4 14.5M20 4.5v5h-5M4 19.5v-5h5"/></symbol>
+    <symbol id="i-frasco" viewBox="0 0 24 24"><path d="M9 3h6M10 3v4.2L6.2 13v6.2A1.8 1.8 0 0 0 8 21h8a1.8 1.8 0 0 0 1.8-1.8V13L14 7.2V3M7 14h10"/></symbol>
+    <symbol id="i-bicho" viewBox="0 0 24 24"><ellipse cx="12" cy="13.5" rx="4.5" ry="5.5"/><path d="M12 8V19M9.5 5.5L11 8M14.5 5.5L13 8M7.5 11.5H4M7.5 15.5H4.5M16.5 11.5H20M16.5 15.5h3"/></symbol>
+    <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
+    <symbol id="i-modulo" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="5" rx="2.5"/><rect x="3" y="14" width="12" height="5" rx="2.5"/><path d="M19 14.5v4M17 16.5h4"/></symbol>
+    <symbol id="i-termometro" viewBox="0 0 24 24"><path d="M10 4.5a2 2 0 0 1 4 0v9.3a4 4 0 1 1-4 0z"/><path d="M12 10v6"/></symbol>
+    <symbol id="i-gotero" viewBox="0 0 24 24"><path d="M14.5 3.5l6 6M13 5l6 6M16 8l-8.5 8.5-3 .5.5-3L13.5 5.5"/><path d="M5 19.5c0 .8-.7 1.5-1.5 1.5S2 20.3 2 19.5 3.5 17 3.5 17 5 18.7 5 19.5z"/></symbol>
+    <symbol id="i-ph" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 15.5v-7h2a2 2 0 0 1 0 4H7M13 8.5v7M17 8.5v7M13 12h4"/></symbol>
+    <symbol id="i-medalla" viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="5.5"/><path d="M8.5 10L6 3h4l2 4.5L14 3h4l-2.5 7M12 12.2l.8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.2z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 18.5l1.2-3.6A7.8 7.8 0 1 1 8.4 18z"/><path d="M9 10.5h6M9 13.5h4"/></symbol>
+    <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-libro" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></symbol>
+    <symbol id="i-regalo" viewBox="0 0 24 24"><rect x="3.5" y="9" width="17" height="11.5" rx="2"/><path d="M2.5 9h19M12 9v11.5M12 9C10.5 5 6.5 5 7 7.5 7.4 9 12 9 12 9zM12 9c1.5-4 5.5-4 5-1.5C16.6 9 12 9 12 9z"/></symbol>
+    <symbol id="i-balanza" viewBox="0 0 24 24"><path d="M5 20h14M12 4v16M5 8h14M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/></symbol>
+  </svg>
+
   <header class="cabecera">
-    <div>
-      <h1>EcoAlaya</h1>
-      <p>Tu huerto hidropónico en casa</p>
+    <div class="marca">
+      <span class="marca-logo"><svg><use href="#i-hoja"/></svg></span>
+      <div>
+        <h1>EcoAlaya</h1>
+        <p>Tu huerto hidropónico en casa</p>
+      </div>
     </div>
-    <span id="saldo-cabecera" class="insignia">0 pts</span>
+    <span class="insignia-puntos" aria-label="Puntos EcoAlaya"><svg><use href="#i-estrella"/></svg><b id="saldo-cabecera">0</b></span>
   </header>
 
-
   <main>
+    <!-- ================= HUERTO (JUEGO) ================= -->
     <section id="p-huerto" role="tabpanel">
-      <div class="estado-juego">
-        <div><small>Día</small><b id="j-dia">1</b></div>
-        <div class="nivel"><small>Nivel <b id="j-nivel">1</b></small><div class="barra-xp"><span id="j-xp"></span></div></div>
-        <div><small>Monedas</small><b id="j-monedas">0</b></div>
+      <div class="hud">
+        <div class="hud-item">
+          <span class="hud-icono sol"><svg><use href="#i-sol"/></svg></span>
+          <div><small>Día</small><b id="j-dia">1</b></div>
+        </div>
+        <div class="hud-item hud-nivel">
+          <span id="j-anillo" class="anillo" style="--p:0"><b id="j-nivel">1</b></span>
+          <div><small>Nivel</small><b id="j-xp-texto">0/100</b></div>
+        </div>
+        <div class="hud-item">
+          <span class="hud-icono moneda"><svg><use href="#i-moneda"/></svg></span>
+          <div><small>Monedas</small><b id="j-monedas">0</b></div>
+        </div>
       </div>
 
-      <div id="escena" class="escena" aria-label="Tu sistema hidropónico. Toca una maceta para sembrar o cosechar."></div>
+      <div class="escena-marco">
+        <div id="escena" class="escena" aria-label="Tu sistema hidropónico. Toca una maceta para sembrar o cosechar."></div>
+        <div class="noche" aria-hidden="true"></div>
+        <div id="flotantes" class="flotantes" aria-hidden="true"></div>
+      </div>
 
       <div id="diagnostico" class="diagnostico" aria-live="polite"></div>
 
       <div id="medidores" class="medidores"></div>
 
+      <h2 class="titulo-seccion">Cuidar el tanque</h2>
       <div id="acciones" class="acciones"></div>
-      <button type="button" id="pasar-dia" class="pasar-dia">Pasar al día siguiente</button>
+      <button type="button" id="pasar-dia" class="pasar-dia"><svg><use href="#i-sol"/></svg><span>Pasar al día siguiente</span></button>
 
       <div id="eventos" class="eventos" aria-live="polite"></div>
 
-      <h2>Tienda de mejoras</h2>
+      <h2 class="titulo-seccion">Tienda de mejoras</h2>
       <div id="tienda" class="tienda"></div>
 
-      <h2>Logros</h2>
+      <h2 class="titulo-seccion">Logros</h2>
       <p class="nota">Cada logro te da <b>puntos EcoAlaya reales</b>, canjeables por productos.</p>
-      <ul id="logros" class="lista logros"></ul>
+      <ul id="logros" class="logros"></ul>
 
       <div class="cta">
+        <svg class="cta-hoja" aria-hidden="true"><use href="#i-hoja"/></svg>
         <h3>¿Listo para cultivar de verdad?</h3>
         <p>Todo lo que aprendes aquí funciona igual en un sistema hidropónico familiar EcoAlaya.</p>
-        <a id="cta-sistema" class="boton" target="_blank" rel="noopener">Quiero mi sistema EcoAlaya</a>
+        <a id="cta-sistema" class="boton boton-claro" target="_blank" rel="noopener"><svg><use href="#i-chat"/></svg>Quiero mi sistema EcoAlaya</a>
       </div>
 
       <details class="aprende">
-        <summary>Aprende: ¿qué significa cada medida?</summary>
-        <p><b>pH</b>: qué tan ácida está el agua. Entre 5.5 y 6.5 las raíces absorben bien los nutrientes. Con el tiempo el pH sube solo, por eso se corrige con “pH down”.</p>
-        <p><b>EC</b> (conductividad eléctrica): cuánta comida hay en el agua. Las plantas la consumen, así que baja; pero si el agua se evapora, las sales se concentran y sube.</p>
-        <p><b>Nivel</b>: las plantas beben y el agua se evapora. Si baja mucho, las raíces se secan.</p>
-        <p><b>Temperatura</b>: el agua caliente tiene menos oxígeno y atrae plagas. Lo ideal es 16–26 °C.</p>
-        <p><b>Cultivos en el mismo tanque</b>: comparten el agua, así que conviene juntar cultivos con rangos parecidos (por ejemplo lechuga y albahaca; no lechuga y tomate).</p>
+        <summary><svg><use href="#i-libro"/></svg>Aprende: ¿qué significa cada medida?</summary>
+        <dl>
+          <dt>pH</dt>
+          <dd>Qué tan ácida está el agua. Entre 5.5 y 6.5 las raíces absorben bien los nutrientes. Con el tiempo el pH sube solo, por eso se corrige con “pH down”.</dd>
+          <dt>EC (conductividad eléctrica)</dt>
+          <dd>Cuánta comida hay en el agua. Las plantas la consumen, así que baja; si el agua se evapora, las sales se concentran y sube.</dd>
+          <dt>Nivel</dt>
+          <dd>Las plantas beben y el agua se evapora. Si baja mucho, las raíces se secan.</dd>
+          <dt>Temperatura</dt>
+          <dd>El agua caliente tiene menos oxígeno y atrae plagas. Lo ideal es 16–26 °C.</dd>
+          <dt>Cultivos en el mismo tanque</dt>
+          <dd>Comparten el agua, así que conviene juntar cultivos con rangos parecidos: lechuga y albahaca sí; lechuga y tomate no.</dd>
+        </dl>
       </details>
       <button type="button" id="reiniciar" class="enlace">Reiniciar juego</button>
     </section>
 
+    <!-- ================= CALCULADORA ================= -->
     <section id="p-calc" role="tabpanel" hidden>
-      <h2>Dosis de solución nutritiva</h2>
-      <form id="form-calc" class="formulario">
+      <header class="encabezado">
+        <span class="encabezado-icono"><svg><use href="#i-calculadora"/></svg></span>
+        <div><h2>Solución nutritiva</h2><p>Cuánta solución A y B poner en tu tanque.</p></div>
+      </header>
+      <form id="form-calc" class="formulario tarjeta">
         <label>Agua en el tanque (litros)
-          <input name="litros" type="number" min="0.1" step="0.1" value="20" required>
+          <input name="litros" type="number" min="0.1" step="0.1" value="20" required inputmode="decimal">
         </label>
-        <label>Cultivo <select name="cultivo"></select></label>
+        <div class="fila">
+          <label>Cultivo <select name="cultivo"></select></label>
+          <label>Etapa <select name="etapa"></select></label>
+        </div>
         <label>Fórmula <select name="formula"></select></label>
         <div id="calc-personalizada" class="fila" hidden>
-          <label>mL/L de A <input name="mlA" type="number" min="0" step="0.1" value="5"></label>
-          <label>mL/L de B <input name="mlB" type="number" min="0" step="0.1" value="2"></label>
+          <label>mL/L de A <input name="mlA" type="number" min="0" step="0.1" value="5" inputmode="decimal"></label>
+          <label>mL/L de B <input name="mlB" type="number" min="0" step="0.1" value="2" inputmode="decimal"></label>
         </div>
-        <label>Etapa <select name="etapa"></select></label>
-        <button type="submit">Calcular</button>
+        <button type="submit">Calcular dosis</button>
       </form>
       <div id="calc-resultado" class="resultado" aria-live="polite"></div>
     </section>
 
+    <!-- ================= SISTEMAS ================= -->
     <section id="p-sistemas" role="tabpanel" hidden>
-      <h2>Mis sistemas</h2>
+      <header class="encabezado">
+        <span class="encabezado-icono"><svg><use href="#i-sistema"/></svg></span>
+        <div><h2>Mis sistemas</h2><p>Tus equipos EcoAlaya y cuánto falta para cosechar.</p></div>
+      </header>
       <div id="lista-sistemas" class="tarjetas"></div>
-      <h3>Registrar un sistema</h3>
-      <form id="form-sistema" class="formulario">
+      <h3 class="titulo-seccion">Registrar un sistema</h3>
+      <form id="form-sistema" class="formulario tarjeta">
         <label>Nombre <input name="nombre" required placeholder="Ej.: Torre del balcón"></label>
-        <label>Tipo
-          <select name="tipo">
-            <option>Sistema familiar NFT</option>
-            <option>Torre vertical</option>
-            <option>Raíz flotante</option>
-            <option>Otro</option>
-          </select>
-        </label>
-        <label>Cultivo <select name="cultivo"></select></label>
         <div class="fila">
-          <label>Tanque (L) <input name="litros" type="number" min="1" step="1" value="20" required></label>
+          <label>Tipo
+            <select name="tipo">
+              <option>Sistema familiar NFT</option>
+              <option>Torre vertical</option>
+              <option>Raíz flotante</option>
+              <option>Otro</option>
+            </select>
+          </label>
+          <label>Cultivo <select name="cultivo"></select></label>
+        </div>
+        <div class="fila">
+          <label>Tanque (L) <input name="litros" type="number" min="1" step="1" value="20" required inputmode="numeric"></label>
           <label>Fecha de siembra <input name="inicio" type="date" required></label>
         </div>
         <button type="submit">Registrar sistema</button>
       </form>
     </section>
 
+    <!-- ================= REGISTRO ================= -->
     <section id="p-registro" role="tabpanel" hidden>
-      <h2>Medición semanal</h2>
-      <form id="form-medicion" class="formulario">
+      <header class="encabezado">
+        <span class="encabezado-icono"><svg><use href="#i-registro"/></svg></span>
+        <div><h2>Registro de cultivo</h2><p>Anota tus mediciones y cosechas reales.</p></div>
+      </header>
+      <h3 class="titulo-seccion">Medición semanal</h3>
+      <form id="form-medicion" class="formulario tarjeta">
         <label>Sistema <select name="sistema" required></select></label>
         <div class="fila">
-          <label>pH <input name="ph" type="number" min="0" max="14" step="0.1" required></label>
-          <label>EC (mS/cm) <input name="ec" type="number" min="0" max="10" step="0.1" required></label>
+          <label>pH <input name="ph" type="number" min="0" max="14" step="0.1" required inputmode="decimal"></label>
+          <label>EC (mS/cm) <input name="ec" type="number" min="0" max="10" step="0.1" required inputmode="decimal"></label>
         </div>
         <div class="fila">
-          <label>Temp. agua (°C) <input name="temp" type="number" min="0" max="50" step="0.5"></label>
+          <label>Temp. agua (°C) <input name="temp" type="number" min="0" max="50" step="0.5" inputmode="decimal"></label>
           <label>Fecha <input name="fecha" type="date" required></label>
         </div>
         <button type="submit">Guardar medición</button>
       </form>
       <div id="medicion-resultado" class="resultado" aria-live="polite"></div>
 
-      <h2>Registrar cosecha</h2>
-      <form id="form-cosecha" class="formulario">
+      <h3 class="titulo-seccion">Registrar cosecha</h3>
+      <form id="form-cosecha" class="formulario tarjeta">
         <label>Sistema <select name="sistema" required></select></label>
         <div class="fila">
-          <label>Peso (g) <input name="gramos" type="number" min="1" step="1" required></label>
+          <label>Peso (g) <input name="gramos" type="number" min="1" step="1" required inputmode="numeric"></label>
           <label>Fecha <input name="fecha" type="date" required></label>
         </div>
         <label>Nota <input name="nota" placeholder="Ej.: 6 lechugas grandes"></label>
         <button type="submit">Guardar cosecha</button>
       </form>
 
-      <h3>Historial</h3>
-      <ul id="historial" class="lista"></ul>
+      <h3 class="titulo-seccion">Historial</h3>
+      <ul id="historial" class="lista tarjeta"></ul>
     </section>
 
+    <!-- ================= PUNTOS ================= -->
     <section id="p-puntos" role="tabpanel" hidden>
-      <div class="resumen">
-        <div><span id="saldo" class="cifra">0</span><small>puntos EcoAlaya</small></div>
-        <div><span id="total-cosecha" class="cifra">0</span><small>kg cosechados</small></div>
+      <div class="saldo-hero">
+        <small>Tus puntos EcoAlaya</small>
+        <span id="saldo" class="saldo-cifra">0</span>
+        <div class="saldo-extra"><svg><use href="#i-balanza"/></svg><span><b id="total-cosecha">0</b> kg cosechados en tus sistemas</span></div>
       </div>
-      <h2>Canjea tus puntos</h2>
-      <ul id="recompensas" class="lista recompensas"></ul>
-      <h3>Cómo ganar puntos</h3>
-      <ul class="lista">
-        <li>Registrar un sistema <b class="pos">+50</b></li>
-        <li>Medición semanal de pH y EC <b class="pos">+10</b></li>
-        <li>Medición con todo en rango <b class="pos">+5 extra</b></li>
-        <li>Registrar una cosecha <b class="pos">+100</b></li>
+      <h3 class="titulo-seccion">Canjea tus puntos</h3>
+      <ul id="recompensas" class="recompensas"></ul>
+      <h3 class="titulo-seccion">Cómo ganar puntos</h3>
+      <ul class="lista tarjeta">
+        <li><span class="texto">Registrar un sistema</span><b class="pos">+50</b></li>
+        <li><span class="texto">Medición semanal de pH y EC</span><b class="pos">+10</b></li>
+        <li><span class="texto">Medición con todo en rango</span><b class="pos">+5 extra</b></li>
+        <li><span class="texto">Registrar una cosecha</span><b class="pos">+100</b></li>
+        <li><span class="texto">Logros del juego Mi Huerto</span><b class="pos">+30 a +100</b></li>
       </ul>
-      <h3>Movimientos</h3>
-      <ul id="movimientos" class="lista"></ul>
+      <h3 class="titulo-seccion">Movimientos</h3>
+      <ul id="movimientos" class="lista tarjeta"></ul>
       <div class="fila respaldo">
         <button type="button" id="exportar" class="secundario">Exportar respaldo</button>
         <label class="boton secundario">Importar respaldo <input id="importar" type="file" accept="application/json" hidden></label>
@@ -160,11 +236,11 @@
   </main>
 
   <nav role="tablist" class="pestanas" aria-label="Secciones">
-    <button role="tab" aria-selected="true" aria-controls="p-huerto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c0-9 5-15 15-16-1 10-7 15-15 16zM5 21l8-8"/></svg><span>Huerto</span></button>
-    <button role="tab" aria-selected="false" aria-controls="p-calc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6zM9 7h6M9 12h1M14 12h1M9 16h1M14 16h1"/></svg><span>Calcular</span></button>
-    <button role="tab" aria-selected="false" aria-controls="p-sistemas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20V9h12v11M9 9V5h6v4"/></svg><span>Sistemas</span></button>
-    <button role="tab" aria-selected="false" aria-controls="p-registro"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v17H7zM10 3h4v3h-4zM10 11h4M10 15h4"/></svg><span>Registro</span></button>
-    <button role="tab" aria-selected="false" aria-controls="p-puntos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Puntos</span></button>
+    <button role="tab" aria-selected="true" aria-controls="p-huerto"><span class="pestana-icono"><svg><use href="#i-hoja"/></svg></span><span>Huerto</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-calc"><span class="pestana-icono"><svg><use href="#i-calculadora"/></svg></span><span>Calcular</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-sistemas"><span class="pestana-icono"><svg><use href="#i-sistema"/></svg></span><span>Sistemas</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-registro"><span class="pestana-icono"><svg><use href="#i-registro"/></svg></span><span>Registro</span></button>
+    <button role="tab" aria-selected="false" aria-controls="p-puntos"><span class="pestana-icono"><svg><use href="#i-estrella"/></svg></span><span>Puntos</span></button>
   </nav>
 
   <dialog id="hoja" class="hoja"></dialog>
