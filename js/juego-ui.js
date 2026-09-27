@@ -331,7 +331,7 @@
       }
     });
 
-    $('#hoja').addEventListener('click', (ev) => {
+    $('#hoja').addEventListener('click', async (ev) => {
       const hoja = $('#hoja');
       if (ev.target === hoja) return hoja.close(); // clic fuera del contenido
       const i = Number(hoja.dataset.maceta);
@@ -345,7 +345,7 @@
         hoja.close();
       } else if ('retirar' in boton.dataset) {
         const m = juego.macetas[i];
-        if (m && !m.muerta && !confirm('¿Seguro que quieres arrancar esta planta? Perderás la semilla.')) return;
+        if (m && !m.muerta && !(await App.confirmar('¿Arrancar esta planta? Perderás la semilla.', 'Arrancar'))) return;
         accion(() => J.retirar(juego, i));
         hoja.close();
       }
@@ -369,8 +369,8 @@
       $('#escena').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    $('#reiniciar').addEventListener('click', () => {
-      if (!confirm('¿Reiniciar el juego? Perderás tu huerto y monedas (tus puntos EcoAlaya y logros ya ganados se conservan).')) return;
+    $('#reiniciar').addEventListener('click', async () => {
+      if (!(await App.confirmar('¿Reiniciar el juego? Perderás tu huerto y monedas. Tus puntos EcoAlaya y logros se conservan.', 'Reiniciar'))) return;
       const logros = juego.logros;
       juego = J.nuevoJuego();
       juego.logros = logros; // evita volver a cobrar puntos por los mismos logros

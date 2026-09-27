@@ -27,7 +27,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --verde: #5fbf85;
     --verde-claro: #1f3327;
     --texto: #e4eee7;
@@ -46,6 +47,27 @@
     --barra: #26332b;
     --planta-borde: rgba(0, 0, 0, 0.4);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --verde: #5fbf85;
+  --verde-claro: #1f3327;
+  --texto: #e4eee7;
+  --suave: #a3b5a8;
+  --fondo: #111814;
+  --tarjeta: #19221c;
+  --borde: #2c3a31;
+  --error: #f2b8b5;
+  --alerta: #e8c26a;
+  --tanque: #1c2a33;
+  --tanque-borde: #37505f;
+  --agua: #3d8fc4;
+  --tubo: #2a3530;
+  --tubo-borde: #43524a;
+  --maceta: #0c0f0d;
+  --barra: #26332b;
+  --planta-borde: rgba(0, 0, 0, 0.4);
 }
 
 * { box-sizing: border-box; }
@@ -329,3 +351,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .hoja .grande { width: 100%; margin-top: 10px; }
 .hoja .resumen { margin-bottom: 10px; }
 .semillas button { flex-shrink: 0; padding: 8px 12px; }
+
+.confirmar {
+  width: calc(100% - 32px);
+  max-width: 380px;
+  border: 0;
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--fondo);
+  color: var(--texto);
+}
+.confirmar::backdrop { background: rgba(0, 0, 0, 0.45); }
+.confirmar p { margin: 0 0 16px; font-size: 1rem; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }

@@ -53,6 +53,18 @@
     aviso.t = setTimeout(() => { el.hidden = true; }, 3500);
   }
 
+  // Confirmación dentro de la página (los diálogos del navegador no funcionan en todas partes).
+  function confirmar(mensaje, textoSi = 'Sí, continuar') {
+    const dlg = $('#confirmar');
+    dlg.querySelector('p').textContent = mensaje;
+    dlg.querySelector('[value="si"]').textContent = textoSi;
+    dlg.returnValue = '';
+    dlg.showModal();
+    return new Promise((resolver) => {
+      dlg.addEventListener('close', () => resolver(dlg.returnValue === 'si'), { once: true });
+    });
+  }
+
   function opciones(select, mapa) {
     select.innerHTML = Object.entries(mapa)
       .map(([clave, v]) => `<option value="${clave}">${escapar(v.nombre)}</option>`)
@@ -233,12 +245,12 @@
   }
 
   function iniciarPuntos() {
-    $('#recompensas').addEventListener('click', (ev) => {
+    $('#recompensas').addEventListener('click', async (ev) => {
       const boton = ev.target.closest('[data-canje]');
       if (!boton) return;
       const r = C.RECOMPENSAS.find((x) => x.id === boton.dataset.canje);
       if (C.saldo(estado.movimientos) < r.costo) return;
-      if (!confirm(`¿Canjear ${r.costo} puntos por "${r.nombre}"?`)) return;
+      if (!(await confirmar(`¿Canjear ${r.costo} puntos por "${r.nombre}"?`, 'Canjear'))) return;
       sumarPuntos(-r.costo, `Canje: ${r.nombre}`);
       guardar();
       aviso('Canje registrado. Muestra este movimiento a EcoAlaya para recibir tu premio.');
@@ -279,6 +291,7 @@
   // Puente para el juego: sus logros suman puntos EcoAlaya reales.
   window.EcoApp = {
     aviso,
+    confirmar,
     otorgarPuntos(puntos, motivo) {
       sumarPuntos(puntos, motivo);
       guardar();
