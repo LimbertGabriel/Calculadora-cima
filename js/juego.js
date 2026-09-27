@@ -1,4 +1,5 @@
-// Motor de "Mi Huerto CIMA": simulación hidropónica por turnos (un turno = un día).
+// Motor de "Mi Huerto CIMA": simulación hidropónica en invernadero por turnos
+// (cada día tiene dos fases: día y noche).
 // Lógica pura, sin navegador, para poder probarla con Node.
 
 (function (root) {
@@ -15,10 +16,11 @@
   // Parámetros de juego por cultivo; los rangos de pH/EC vienen de la calculadora.
   const PLANTAS = {
     lechuga: { dias: 10, semilla: 10, precio: 35, gramos: 250, xp: 20, nivel: 1 },
-    albahaca: { dias: 12, semilla: 15, precio: 50, gramos: 120, xp: 25, nivel: 2 },
-    espinaca: { dias: 11, semilla: 15, precio: 45, gramos: 200, xp: 25, nivel: 3 },
-    fresa: { dias: 18, semilla: 30, precio: 110, gramos: 300, xp: 45, nivel: 4 },
-    tomate: { dias: 22, semilla: 40, precio: 150, gramos: 900, xp: 60, nivel: 5 },
+    acelga: { dias: 12, semilla: 12, precio: 45, gramos: 400, xp: 25, nivel: 2 },
+    kale: { dias: 12, semilla: 15, precio: 55, gramos: 250, xp: 25, nivel: 3 },
+    apio: { dias: 16, semilla: 25, precio: 90, gramos: 600, xp: 40, nivel: 4 },
+    fresa: { dias: 18, semilla: 30, precio: 110, gramos: 300, xp: 45, nivel: 5 },
+    tomate: { dias: 22, semilla: 40, precio: 150, gramos: 900, xp: 60, nivel: 6 },
   };
 
   const INSUMOS = {
@@ -41,15 +43,16 @@
     primeraCosecha: { nombre: 'Primera cosecha', descripcion: 'Cosecha tu primera planta.', puntos: 30 },
     semanaPerfecta: { nombre: 'Semana perfecta', descripcion: '7 días seguidos con todo en rango.', puntos: 40 },
     diezCosechas: { nombre: 'Huerto productivo', descripcion: 'Cosecha 10 plantas.', puntos: 60 },
-    coleccion: { nombre: 'Colección completa', descripcion: 'Cosecha los 5 cultivos.', puntos: 100 },
+    coleccion: { nombre: 'Colección completa', descripcion: 'Cosecha los 6 cultivos.', puntos: 100 },
+    sinHeladas: { nombre: 'Guardián del invernadero', descripcion: 'Protege tus plantas de 5 heladas.', puntos: 40 },
     kilo: { nombre: 'Primer kilo', descripcion: 'Cosecha 1 kg en total.', puntos: 30 },
   };
 
   const MACETAS_INICIALES = 6;
   const MONEDAS_INICIALES = 150;
 
-  function nuevoJuego(semilla = Date.now()) {
-    return {
+  function nuevoJuego(semilla = Date.now(), region = 'occidente') {
+    const j = {
       version: 1,
       dia: 1,
       monedas: MONEDAS_INICIALES,
@@ -62,8 +65,14 @@
       racha: 0,
       stats: { cosechas: 0, gramos: 0, cultivos: {} },
       logros: {},
-      eventos: ['¡Bienvenido! Tu tanque tiene agua del grifo: agrega nutrientes y baja el pH antes de sembrar.'],
+      eventos: ['¡Bienvenido a tu invernadero! El tanque tiene agua del grifo: agrega nutrientes y baja el pH antes de sembrar.'],
+      region,
+      fase: 'dia',
+      invernadero: nuevoInvernadero(),
+      heladasEvitadas: 0,
     };
+    sortearPronostico(j);
+    return j;
   }
 
   // Generador pseudoaleatorio con estado guardado (mulberry32), para simulaciones reproducibles.
@@ -259,16 +268,187 @@
     }
   }
 
-  function pasarDia(j) {
+
+  // ---------- Invernadero y clima de Bolivia ----------
+  // Occidente (Altiplano): heladas y viento. Oriente (llanos): calor, humedad y surazos.
+  const REGIONES = {
+    occidente: { nombre: 'Occidente (Altiplano)' },
+    oriente: { nombre: 'Oriente (llanos)' },
+  };
+
+  // Pronósticos por región y fase: temperatura exterior, ganancia de calor del sol,
+  // y si trae viento, humedad o helada. `prob` es la probabilidad relativa.
+  const PRONOSTICOS = {
+    occidente: {
+      dia: [
+        { id: 'soleado', texto: 'Día soleado', ext: [14, 18], sol: 14, prob: 55 },
+        { id: 'viento', texto: 'Viento fuerte', ext: [10, 14], sol: 12, viento: true, prob: 25 },
+        { id: 'nublado', texto: 'Día nublado y frío', ext: [8, 12], sol: 7, prob: 20 },
+      ],
+      noche: [
+        { id: 'helada', texto: 'Helada', ext: [-6, -1], prob: 45 },
+        { id: 'fria', texto: 'Noche fría', ext: [0, 4], prob: 40 },
+        { id: 'viento', texto: 'Noche con viento', ext: [1, 4], viento: true, prob: 15 },
+      ],
+    },
+    oriente: {
+      dia: [
+        { id: 'caluroso', texto: 'Día muy caluroso', ext: [31, 34], sol: 7, prob: 45 },
+        { id: 'humedo', texto: 'Día húmedo', ext: [28, 31], sol: 6, humedo: true, prob: 35 },
+        { id: 'lluvia', texto: 'Lluvia con viento', ext: [24, 27], sol: 4, viento: true, humedo: true, prob: 20 },
+      ],
+      noche: [
+        { id: 'calida', texto: 'Noche cálida', ext: [22, 25], prob: 50 },
+        { id: 'humeda', texto: 'Noche húmeda', ext: [20, 23], humedo: true, prob: 40 },
+        { id: 'surazo', texto: 'Surazo (viento frío del sur)', ext: [10, 14], viento: true, prob: 10 },
+      ],
+    },
+  };
+
+  const CONFORT_AIRE = [8, 30];
+
+  function nuevoInvernadero() {
+    return { cortinas: false, ventanas: false, manta: false };
+  }
+
+  function sortearPronostico(j) {
+    const lista = PRONOSTICOS[j.region][j.fase];
+    const total = lista.reduce((t, x) => t + x.prob, 0);
+    let r = aleatorio(j) * total;
+    let elegido = lista[lista.length - 1];
+    for (const x of lista) {
+      if (r < x.prob) { elegido = x; break; }
+      r -= x.prob;
+    }
+    const ext = Math.round(elegido.ext[0] + aleatorio(j) * (elegido.ext[1] - elegido.ext[0]));
+    j.pronostico = { id: elegido.id, texto: elegido.texto, ext, sol: elegido.sol || 0, viento: !!elegido.viento, humedo: !!elegido.humedo, helada: ext < 0 };
+  }
+
+  // Temperatura del aire dentro del invernadero y la que sienten las plantas con esta configuración.
+  function climaInvernadero(j, config = j.invernadero) {
+    const pr = j.pronostico;
+    const dia = j.fase === 'dia';
+    let aire = pr.ext + (dia ? pr.sol : 6);
+    if (config.ventanas) aire -= dia ? 6 : 3;
+    if (config.cortinas) aire -= dia ? 4 : 3;
+    // La manta térmica abriga a las plantas de noche; de día les quita luz.
+    const plantas = aire + (config.manta && !dia ? 5 : 0);
+    return { aire: Math.round(aire), plantas: Math.round(plantas) };
+  }
+
+  // Daño a la salud de las plantas por el clima de esta fase (0 = sin daño) y los motivos.
+  function efectoClima(j, config = j.invernadero) {
+    const pr = j.pronostico;
+    const { plantas } = climaInvernadero(j, config);
+    const motivos = [];
+    let dano = 0;
+    if (plantas < 0) { dano += 30; motivos.push(`helada dentro del invernadero (${plantas} °C)`); }
+    else if (plantas < 4) { dano += 12; motivos.push(`mucho frío (${plantas} °C)`); }
+    else if (plantas < CONFORT_AIRE[0]) { dano += 4; motivos.push(`frío (${plantas} °C)`); }
+    else if (plantas > 34) { dano += 18; motivos.push(`calor excesivo (${plantas} °C)`); }
+    else if (plantas > CONFORT_AIRE[1]) { dano += 8; motivos.push(`calor (${plantas} °C)`); }
+    if (pr.viento && config.cortinas) { dano += 10; motivos.push('el viento entró por las cortinas abiertas'); }
+    if (pr.humedo && !config.ventanas) { dano += 8; motivos.push('humedad encerrada: riesgo de hongos'); }
+    if (config.manta && j.fase === 'dia') { dano += 6; motivos.push('la manta térmica les quitó la luz del día'); }
+    return { dano, motivos };
+  }
+
+  // Mejor configuración para la fase actual (sirve para dar consejos).
+  function mejorConfiguracion(j) {
+    let mejor = null;
+    for (const cortinas of [false, true]) {
+      for (const ventanas of [false, true]) {
+        for (const manta of [false, true]) {
+          const config = { cortinas, ventanas, manta };
+          const { dano } = efectoClima(j, config);
+          // Entre opciones sin daño, prefiere la temperatura más cómoda (cerca de 20 °C).
+          const puntaje = dano * 100 + Math.abs(climaInvernadero(j, config).plantas - 20);
+          if (!mejor || puntaje < mejor.puntaje) mejor = { config, dano, puntaje };
+        }
+      }
+    }
+    return mejor;
+  }
+
+  function cambiarInvernadero(j, control, valor) {
+    if (!(control in j.invernadero)) return error('Control desconocido.');
+    j.invernadero[control] = !!valor;
+    return { ok: true };
+  }
+
+  function cambiarRegion(j, region) {
+    if (!REGIONES[region]) return error('Región desconocida.');
+    j.region = region;
+    sortearPronostico(j);
+    return { ok: true, mensaje: `Tu invernadero ahora está en ${REGIONES[region].nombre}.` };
+  }
+
+  // Avanza media jornada: aplica el clima de la fase actual y pasa a la siguiente.
+  // Al terminar la noche corre el día completo (crecimiento, agua, plagas).
+  function pasarFase(j) {
+    const eventos = [];
+    const { dano, motivos } = efectoClima(j);
+    const vivas = j.macetas.filter((m) => m && !m.muerta);
+    const { aire } = climaInvernadero(j);
+
+    // El agua del tanque se acerca a la temperatura del aire (menos si está aislado).
+    const a = j.agua;
+    a.temp = r2(limitar(a.temp + (aire - a.temp) * (j.mejoras.aislado ? 0.1 : 0.25), 4, 36));
+    if (j.pronostico.viento && j.invernadero.cortinas) a.nivel = r2(Math.max(0, a.nivel - 4));
+
+    if (vivas.length && dano > 0) {
+      for (const m of vivas) m.salud = r2(limitar(m.salud - dano, 0, 100));
+      eventos.push(`${j.fase === 'dia' ? 'Durante el día' : 'Durante la noche'}: ${motivos.join('; ')}. Las plantas perdieron ${dano} de salud.`);
+    } else if (vivas.length && j.pronostico.helada) {
+      j.heladasEvitadas = (j.heladasEvitadas || 0) + 1;
+      eventos.push(`Hubo helada afuera (${j.pronostico.ext} °C), pero tus plantas quedaron protegidas.`);
+    }
+
+    if (j.fase === 'dia') {
+      j.fase = 'noche';
+      sortearPronostico(j);
+      j.eventos = eventos;
+    } else {
+      const delDia = pasarDia(j, { clima: true });
+      j.fase = 'dia';
+      sortearPronostico(j);
+      j.eventos = [...eventos, ...delDia];
+    }
+    return j.eventos;
+  }
+
+  // Completa datos que faltan en partidas guardadas con versiones anteriores.
+  const CULTIVO_REEMPLAZO = { albahaca: 'acelga', espinaca: 'kale' };
+  function migrar(j) {
+    if (!j.region) j.region = 'occidente';
+    if (!j.fase) j.fase = 'dia';
+    if (!j.invernadero) j.invernadero = nuevoInvernadero();
+    if (j.heladasEvitadas == null) j.heladasEvitadas = 0;
+    for (const m of j.macetas) if (m && CULTIVO_REEMPLAZO[m.cultivo]) m.cultivo = CULTIVO_REEMPLAZO[m.cultivo];
+    for (const [viejo, nuevo] of Object.entries(CULTIVO_REEMPLAZO)) {
+      if (j.stats.cultivos[viejo]) {
+        j.stats.cultivos[nuevo] = (j.stats.cultivos[nuevo] || 0) + j.stats.cultivos[viejo];
+        delete j.stats.cultivos[viejo];
+      }
+    }
+    if (!j.pronostico) sortearPronostico(j);
+    return j;
+  }
+
+  // Simula un día completo del tanque y las plantas. Con `clima: true` la temperatura del agua
+  // la maneja el invernadero (pasarFase); sin él, varía al azar.
+  function pasarDia(j, { clima = false } = {}) {
     const a = j.agua;
     const eventos = [];
     const vivas = j.macetas.filter((m) => m && !m.muerta);
 
-    // Clima: la temperatura del agua se mueve al azar; el tanque aislado la acerca a 21 °C.
-    const aislado = !!j.mejoras.aislado;
-    a.temp += (aleatorio(j) - 0.5) * (aislado ? 1.2 : 4);
-    a.temp += (21 - a.temp) * (aislado ? 0.5 : 0.15);
-    a.temp = r2(limitar(a.temp, 10, 34));
+    if (!clima) {
+      // El tanque aislado acerca la temperatura del agua a 21 °C.
+      const aislado = !!j.mejoras.aislado;
+      a.temp += (aleatorio(j) - 0.5) * (aislado ? 1.2 : 4);
+      a.temp += (21 - a.temp) * (aislado ? 0.5 : 0.15);
+      a.temp = r2(limitar(a.temp, 10, 34));
+    }
 
     // Evaporación y consumo: el agua baja, las sales se concentran y las plantas se comen los nutrientes.
     const nivelAntes = a.nivel;
@@ -331,6 +511,7 @@
       diezCosechas: j.stats.cosechas >= 10,
       coleccion: Object.keys(PLANTAS).every((c) => j.stats.cultivos[c]),
       kilo: j.stats.gramos >= 1000,
+      sinHeladas: (j.heladasEvitadas || 0) >= 5,
     };
     const nuevos = [];
     for (const [id, ok] of Object.entries(cumple)) {
@@ -343,9 +524,10 @@
   }
 
   const api = {
-    LITROS, PLANTAS, INSUMOS, MEJORAS, LOGROS, TEMP_IDEAL, NIVEL_MINIMO,
-    nuevoJuego, nivelJugador, rangoTanque, diagnostico, dosisReal,
+    LITROS, PLANTAS, INSUMOS, MEJORAS, LOGROS, TEMP_IDEAL, NIVEL_MINIMO, REGIONES, CONFORT_AIRE,
+    nuevoJuego, migrar, nivelJugador, rangoTanque, diagnostico, dosisReal,
     usarInsumo, sembrar, cosechar, retirar, comprarMejora, pasarDia, revisarLogros,
+    climaInvernadero, efectoClima, mejorConfiguracion, cambiarInvernadero, cambiarRegion, pasarFase,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -15,7 +15,11 @@
   function cargar() {
     try {
       const guardado = JSON.parse(localStorage.getItem(CLAVE));
-      return guardado ? { ...vacio(), ...guardado } : vacio();
+      if (!guardado) return vacio();
+      const datos = { ...vacio(), ...guardado };
+      // Cultivos que ya no se ofrecen pasan a su reemplazo.
+      for (const sis of datos.sistemas) sis.cultivo = C.cultivoActual(sis.cultivo);
+      return datos;
     } catch {
       return vacio();
     }

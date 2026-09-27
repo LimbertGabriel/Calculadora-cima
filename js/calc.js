@@ -14,8 +14,9 @@
   // Rangos orientativos de pH y conductividad eléctrica (EC, mS/cm).
   const CULTIVOS = {
     lechuga: { nombre: 'Lechuga', ph: [5.5, 6.5], ec: [0.8, 1.2], dias: 45 },
-    albahaca: { nombre: 'Albahaca', ph: [5.5, 6.5], ec: [1.0, 1.6], dias: 60 },
-    espinaca: { nombre: 'Espinaca', ph: [5.5, 6.6], ec: [1.8, 2.3], dias: 45 },
+    acelga: { nombre: 'Acelga', ph: [6.0, 6.5], ec: [1.8, 2.3], dias: 60 },
+    kale: { nombre: 'Kale', ph: [5.5, 6.5], ec: [1.2, 1.5], dias: 60 },
+    apio: { nombre: 'Apio', ph: [6.3, 6.7], ec: [1.8, 2.4], dias: 90 },
     fresa: { nombre: 'Fresa', ph: [5.5, 6.2], ec: [1.0, 1.5], dias: 90 },
     tomate: { nombre: 'Tomate', ph: [5.5, 6.5], ec: [2.0, 3.5], dias: 100 },
   };
@@ -39,6 +40,12 @@
     { id: 'phmetro', nombre: 'Kit medidor de pH', costo: 800 },
     { id: 'descuento', nombre: '15 % de descuento en un módulo', costo: 1200 },
   ];
+
+  // Cultivos que ya no se ofrecen y su reemplazo (para datos guardados antes).
+  const CULTIVO_ANTERIOR = { albahaca: 'acelga', espinaca: 'kale' };
+  function cultivoActual(id) {
+    return CULTIVOS[id] ? id : CULTIVO_ANTERIOR[id] || 'lechuga';
+  }
 
   function redondear(valor, decimales) {
     const f = Math.pow(10, decimales);
@@ -101,7 +108,7 @@
 
   const api = {
     PARTES, FORMULAS, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
-    calcularDosis, llenadosPorJuego, evaluarMedicion, puntosPorMedicion, saldo,
+    calcularDosis, llenadosPorJuego, cultivoActual, evaluarMedicion, puntosPorMedicion, saldo,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

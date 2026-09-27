@@ -1,6 +1,6 @@
 // Service worker: permite usar la app sin internet.
 // Sirve desde caché al instante y actualiza en segundo plano (la versión nueva se ve en la siguiente visita).
-const CACHE = 'cima-v1';
+const CACHE = 'cima-v2';
 const ARCHIVOS = [
   './',
   'index.html',

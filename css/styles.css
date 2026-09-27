@@ -49,6 +49,18 @@
   --planta-mala: #d9a441;
   --planta-muerta: #8d6e52;
   --planta-borde: rgba(18, 60, 30, 0.22);
+  --kale: #2f7a4c;
+  --apio: #a9d47a;
+  --acelga-tallo: #d2455a;
+  --montana: #b9c6cf;
+  --nieve: #ffffff;
+  --plastico: #eef6fb;
+  --estructura: #8e9d93;
+  --manta: #ffffff;
+  --manta-borde: #cfd8d2;
+  --rafaga: rgba(255, 255, 255, 0.85);
+  --tronco: #8a6a44;
+  --cielo-noche: #1b2a4a;
   --fresa: #e23d55;
   --tomate: #e54b2e;
   --fruto-verde: #9ccc65;
@@ -101,6 +113,13 @@
     --colina-2: #235232;
     --nube: #9fb4c2;
     --astro: #e9e6cf;
+    --montana: #34465a;
+    --nieve: #cfd9e3;
+    --plastico: #9fb6c6;
+    --estructura: #56685c;
+    --manta: #d8e0e6;
+    --manta-borde: #7f8f86;
+    --rafaga: rgba(210, 225, 235, 0.6);
     --planta-borde: rgba(0, 0, 0, 0.35);
     --tanque: #172430;
     --tanque-borde: #34506a;
@@ -147,6 +166,13 @@
   --colina-2: #235232;
   --nube: #9fb4c2;
   --astro: #e9e6cf;
+  --montana: #34465a;
+  --nieve: #cfd9e3;
+  --plastico: #9fb6c6;
+  --estructura: #56685c;
+  --manta: #d8e0e6;
+  --manta-borde: #7f8f86;
+  --rafaga: rgba(210, 225, 235, 0.6);
   --planta-borde: rgba(0, 0, 0, 0.35);
   --tanque: #172430;
   --tanque-borde: #34506a;
@@ -385,7 +411,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .noche {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 87.2% 30px, rgba(255, 250, 220, 0.95) 0 15px, transparent 17px), linear-gradient(#0b1a33, #10243d 60%, #0e1f1a);
+  background: linear-gradient(#0b1a33, #10243d 60%, #0e1f1a);
   opacity: 0;
   pointer-events: none;
 }
@@ -456,6 +482,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .estado { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 999px; }
 .estado.bien { background: var(--hoja-claro); color: var(--ok); }
 .estado.alto, .estado.bajo { background: var(--mal-claro); color: var(--mal); }
+.estado.atencion { background: var(--sol-claro); color: var(--aviso); }
 .medidor-valor { font-family: var(--fuente-titulo); font-weight: 800; font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
 .medidor-valor small { font-family: var(--fuente-texto); font-size: 0.8rem; font-weight: 600; color: var(--suave); margin-left: 3px; }
 .medidor-barra { position: relative; height: 8px; background: var(--barra); border-radius: 99px; }
@@ -789,3 +816,60 @@ button .costo svg { color: inherit; }
 .producto-compra .boton { min-height: 44px; padding: 8px 16px; }
 .precio-consulta { font-weight: 700; color: var(--suave); }
 .producto-medidor .producto-icono, .producto-curso .producto-icono { background: var(--sol-claro); color: var(--sol-fuerte); }
+
+/* ============ Invernadero ============ */
+.escena-marco .noche { transition: opacity 0.7s ease; }
+.escena-marco.es-noche .noche { opacity: 0.4; }
+.viento path { animation: rafaga 2.6s linear infinite; }
+@keyframes rafaga { from { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } to { transform: translateX(460px); opacity: 0; } }
+.aire { animation: subeaire 1.8s ease-in-out infinite; }
+@keyframes subeaire { 50% { transform: translateY(-4px); opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .viento path, .aire { animation: none; } .escena-marco .noche { transition: none; } }
+
+.clima { display: grid; gap: 10px; padding: 14px; border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); }
+.clima-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.fase { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 5px 12px; border-radius: 999px; font-family: var(--fuente-titulo); font-weight: 800; }
+.fase svg { font-size: 1.2em; }
+.fase-dia { background: var(--sol-claro); color: var(--sol-fuerte); }
+.fase-noche { background: #22314d; color: #e7ecff; }
+.region { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: var(--suave); }
+.region select { min-height: 38px; padding: 4px 8px; font-size: 0.85rem; width: auto; }
+.pronostico { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--superficie-2); }
+.pronostico.helada { background: #e3eefb; }
+:root:not([data-theme="light"]) .pronostico.helada { background: var(--superficie-2); }
+.pronostico-icono { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--agua-claro); color: var(--agua); font-size: 26px; }
+.pronostico.helada .pronostico-icono { background: #cfe2f7; color: #2c6fb8; }
+.pronostico div { display: grid; line-height: 1.25; }
+.pronostico small { color: var(--suave); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pronostico b { font-family: var(--fuente-titulo); font-size: 1.15rem; }
+.pronostico span { color: var(--suave); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.controles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.control {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 92px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: var(--superficie-2);
+  color: var(--texto);
+  border: 2px solid var(--linea);
+  font-family: var(--fuente-texto);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.control small { font-weight: 600; color: var(--suave); }
+.control-icono { font-size: 26px; color: var(--suave); }
+.control.activo { border-color: var(--hoja); background: var(--hoja-claro); }
+.control.activo .control-icono, .control.activo small { color: var(--hoja); }
+.prevision { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; border-left: 5px solid var(--ok); background: var(--superficie-2); font-size: 0.9rem; }
+.prevision.alerta { border-left-color: var(--aviso); }
+.prevision.mal { border-left-color: var(--mal); }
+.prevision-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.prevision-cab span:first-child { color: var(--suave); font-weight: 600; }
+.prevision-cab b { font-family: var(--fuente-titulo); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.prevision ul { margin: 0; padding-left: 18px; }
+.prevision p { margin: 0; color: var(--suave); }
+.consejo { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 14px; background: var(--sol-claro); font-size: 0.9rem; }
+.consejo svg { flex-shrink: 0; font-size: 1.3em; color: var(--sol-fuerte); margin-top: 1px; }
+.pasar-dia.es-noche { background: linear-gradient(135deg, #2c3e66, #1d2b47); color: #eef2ff; box-shadow: 0 6px 16px rgba(29, 43, 71, 0.35); }

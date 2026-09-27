@@ -40,6 +40,13 @@
     <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-libro" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></symbol>
     <symbol id="i-regalo" viewBox="0 0 24 24"><rect x="3.5" y="9" width="17" height="11.5" rx="2"/><path d="M2.5 9h19M12 9v11.5M12 9C10.5 5 6.5 5 7 7.5 7.4 9 12 9 12 9zM12 9c1.5-4 5.5-4 5-1.5C16.6 9 12 9 12 9z"/></symbol>
+    <symbol id="i-luna" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></symbol>
+    <symbol id="i-copo" viewBox="0 0 24 24"><path d="M12 2.5v19M4 7l16 10M4 17L20 7M9.5 4L12 6.5 14.5 4M9.5 20L12 17.5l2.5 2.5M4.2 10.5L6.5 12l-2.3 1.5M19.8 10.5L17.5 12l2.3 1.5"/></symbol>
+    <symbol id="i-viento" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></symbol>
+    <symbol id="i-nube" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18 10.5a4 4 0 0 1-.5 8z"/></symbol>
+    <symbol id="i-cortina" viewBox="0 0 24 24"><path d="M3 4h18M5 4v16M19 4v16M5 4c3 5 3 11 0 16M19 4c-3 5-3 11 0 16"/></symbol>
+    <symbol id="i-ventana" viewBox="0 0 24 24"><path d="M3 13c3-7 15-7 18 0M3 13v7h18v-7M9 8.5l2-3.5h5l1 3"/></symbol>
+    <symbol id="i-manta" viewBox="0 0 24 24"><path d="M3 17c2-8 16-8 18 0M3 17h18M6 12.5l1.5 2M10 10.5l1 2.5M14 10.5l-1 2.5M18 12.5l-1.5 2"/></symbol>
     <symbol id="i-balanza" viewBox="0 0 24 24"><path d="M5 20h14M12 4v16M5 8h14M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/></symbol>
   </svg>
 
@@ -78,13 +85,15 @@
         <div id="flotantes" class="flotantes" aria-hidden="true"></div>
       </div>
 
+      <section id="clima" class="clima" aria-live="polite" aria-label="Clima del invernadero"></section>
+
       <div id="diagnostico" class="diagnostico" aria-live="polite"></div>
 
       <div id="medidores" class="medidores"></div>
 
       <h2 class="titulo-seccion">Cuidar el tanque</h2>
       <div id="acciones" class="acciones"></div>
-      <button type="button" id="pasar-dia" class="pasar-dia"><svg><use href="#i-sol"/></svg><span>Pasar al día siguiente</span></button>
+      <button type="button" id="pasar-dia" class="pasar-dia"><svg><use href="#i-luna"/></svg><span>Pasar a la noche</span></button>
 
       <div id="eventos" class="eventos" aria-live="polite"></div>
 
@@ -113,8 +122,10 @@
           <dd>Las plantas beben y el agua se evapora. Si baja mucho, las raíces se secan.</dd>
           <dt>Temperatura</dt>
           <dd>El agua caliente tiene menos oxígeno y atrae plagas. Lo ideal es 16–26 °C.</dd>
+          <dt>El invernadero</dt>
+          <dd>En el occidente (Altiplano) las noches traen heladas y viento: de noche cierra cortinas y ventanas y pon la manta térmica; de día quítala y ventila para que no haga demasiado calor. En el oriente el problema es el calor y la humedad: ventila casi siempre y cierra las cortinas cuando llega un surazo o una lluvia con viento.</dd>
           <dt>Cultivos en el mismo tanque</dt>
-          <dd>Comparten el agua, así que conviene juntar cultivos con rangos parecidos: lechuga y albahaca sí; lechuga y tomate no.</dd>
+          <dd>Comparten el agua, así que conviene juntar cultivos con rangos parecidos: lechuga y kale sí; acelga y apio sí; lechuga y tomate no.</dd>
         </dl>
       </details>
       <button type="button" id="reiniciar" class="enlace">Reiniciar juego</button>

@@ -112,3 +112,94 @@ test('los logros se entregan una sola vez', () => {
   assert.strictEqual(J.revisarLogros(j).length, 1);
   assert.strictEqual(J.revisarLogros(j).length, 0);
 });
+
+// ---------- Invernadero ----------
+
+function manejarInvernadero(j) {
+  const { config } = J.mejorConfiguracion(j);
+  for (const [control, valor] of Object.entries(config)) J.cambiarInvernadero(j, control, valor);
+}
+
+for (const region of ['occidente', 'oriente']) {
+  test(`un jugador cuidadoso cosecha en el invernadero de ${region}`, () => {
+    for (const semilla of [1, 2, 3, 42, 99]) {
+      const j = J.nuevoJuego(semilla, region);
+      cuidar(j);
+      sembrarTodo(j, 'lechuga');
+      for (let d = 0; d < 40; d++) {
+        for (const fase of ['dia', 'noche']) {
+          cuidar(j);
+          manejarInvernadero(j);
+          J.pasarFase(j);
+        }
+        cosecharTodo(j);
+        J.revisarLogros(j);
+        sembrarTodo(j, 'lechuga');
+      }
+      assert.ok(j.stats.cosechas >= 18, `${region} semilla ${semilla}: ${j.stats.cosechas} cosechas`);
+      assert.ok(j.monedas > 150, `${region} semilla ${semilla}: ${j.monedas} monedas`);
+      assert.strictEqual(j.dia, 41);
+    }
+  });
+}
+
+test('sin manejar el invernadero, las heladas del Altiplano dañan las plantas', () => {
+  const j = J.nuevoJuego(5, 'occidente');
+  cuidar(j);
+  sembrarTodo(j, 'lechuga');
+  let dano = 0;
+  for (let f = 0; f < 20; f++) {
+    cuidar(j);
+    // Deja todo abierto y sin manta, día y noche.
+    Object.assign(j.invernadero, { cortinas: true, ventanas: true, manta: false });
+    dano += J.efectoClima(j).dano;
+    J.pasarFase(j);
+  }
+  assert.ok(dano >= 60, `daño total ${dano}`);
+});
+
+test('la manta térmica protege de la helada y de día quita luz', () => {
+  const j = J.nuevoJuego(1, 'occidente');
+  j.fase = 'noche';
+  j.pronostico = { id: 'helada', texto: 'Helada', ext: -5, sol: 0, viento: false, humedo: false, helada: true };
+  assert.ok(J.efectoClima(j, { cortinas: false, ventanas: false, manta: false }).dano > 0);
+  assert.strictEqual(J.efectoClima(j, { cortinas: false, ventanas: false, manta: true }).dano, 4);
+  j.fase = 'dia';
+  j.pronostico = { id: 'soleado', texto: 'Día soleado', ext: 16, sol: 14, viento: false, humedo: false, helada: false };
+  assert.ok(J.efectoClima(j, { cortinas: false, ventanas: false, manta: true }).motivos.some((m) => m.includes('luz')));
+});
+
+test('en el oriente la humedad encerrada daña y ventilar la evita', () => {
+  const j = J.nuevoJuego(1, 'oriente');
+  j.pronostico = { id: 'humedo', texto: 'Día húmedo', ext: 29, sol: 6, viento: false, humedo: true, helada: false };
+  assert.ok(J.efectoClima(j, { cortinas: false, ventanas: false, manta: false }).dano >= 8);
+  assert.strictEqual(J.efectoClima(j, { cortinas: true, ventanas: true, manta: false }).dano, 0);
+});
+
+test('un día tiene dos fases y el crecimiento ocurre al terminar la noche', () => {
+  const j = J.nuevoJuego(1);
+  cuidar(j);
+  J.sembrar(j, 0, 'lechuga');
+  manejarInvernadero(j);
+  J.pasarFase(j);
+  assert.strictEqual(j.fase, 'noche');
+  assert.strictEqual(j.dia, 1);
+  assert.strictEqual(j.macetas[0].crecimiento, 0);
+  manejarInvernadero(j);
+  J.pasarFase(j);
+  assert.strictEqual(j.fase, 'dia');
+  assert.strictEqual(j.dia, 2);
+  assert.ok(j.macetas[0].crecimiento > 0);
+});
+
+test('las partidas guardadas antes se actualizan', () => {
+  const viejo = J.nuevoJuego(1);
+  delete viejo.region; delete viejo.fase; delete viejo.invernadero; delete viejo.pronostico;
+  viejo.macetas[0] = { cultivo: 'albahaca', crecimiento: 50, salud: 90, sumaSalud: 0, dias: 3, muerta: false };
+  viejo.stats.cultivos = { espinaca: 2 };
+  J.migrar(viejo);
+  assert.strictEqual(viejo.region, 'occidente');
+  assert.strictEqual(viejo.macetas[0].cultivo, 'acelga');
+  assert.deepStrictEqual(viejo.stats.cultivos, { kale: 2 });
+  assert.ok(viejo.pronostico && viejo.invernadero);
+});
