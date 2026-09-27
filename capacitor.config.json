@@ -1,0 +1,8 @@
+{
+  "appId": "com.ecoalaya.huerto",
+  "appName": "EcoAlaya",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#2e7d4f"
+  }
+}

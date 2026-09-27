@@ -4,6 +4,15 @@
   "private": true,
   "description": "Calculadora de solución nutritiva, registro de cultivo y puntos EcoAlaya",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "build:web": "node scripts/build-web.js",
+    "android:sync": "npm run build:web && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2"
   }
 }
