@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#f3f6e9"/><g transform="translate(256 256) scale(2.75) translate(-100 -84)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="33 17 134 134">
   <defs>
     <linearGradient id="cm-deg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0.05" stop-color="#cbd600"/>
@@ -17,4 +17,4 @@
     <path d="M100 124 C120 126 144 110 140 90 C136 78 116 78 106 94 C102 102 100 112 100 124 Z" fill="#ffffff"/>
     <path d="M99 122 C92 108 82 98 70 90 M101 122 C108 108 118 98 130 90" fill="none" stroke="#7aaa2a" stroke-width="2.4" stroke-linecap="round"/>
   </g>
-</g></svg>
+</svg>

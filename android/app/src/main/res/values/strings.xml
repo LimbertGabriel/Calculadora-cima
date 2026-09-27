@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">EcoAlaya</string>
-    <string name="title_activity_main">EcoAlaya</string>
-    <string name="package_name">com.ecoalaya.huerto</string>
-    <string name="custom_url_scheme">com.ecoalaya.huerto</string>
+    <string name="app_name">Hidroponía CIMA</string>
+    <string name="title_activity_main">Hidroponía CIMA</string>
+    <string name="package_name">com.hidroponiacima.app</string>
+    <string name="custom_url_scheme">com.hidroponiacima.app</string>
 </resources>

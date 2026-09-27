@@ -1,4 +1,4 @@
-# Compila el APK de EcoAlaya y lo publica en Releases con un enlace de descarga directa.
+# Compila el APK de Hidroponía CIMA y lo publica en Releases con un enlace de descarga directa.
 name: APK Android
 
 on:
@@ -47,23 +47,24 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk ../EcoAlaya.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ../HidroponiaCIMA.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: EcoAlaya-apk
-          path: EcoAlaya.apk
+          name: HidroponiaCIMA-apk
+          path: HidroponiaCIMA.apk
 
       - name: Publicar en Releases (apk-latest)
         env:
           GH_TOKEN: ${{ github.token }}
-          TITULO: EcoAlaya APK (versión 1.0.${{ github.run_number }})
+          TITULO: Hidroponía CIMA APK (versión 1.0.${{ github.run_number }})
         run: |
           NOTAS="APK de prueba generado desde la rama ${GITHUB_REF_NAME} (commit ${GITHUB_SHA::7}). Descárgalo en tu celular Android y permite instalar apps de fuentes desconocidas."
           if gh release view apk-latest > /dev/null 2>&1; then
             # Reemplaza solo el archivo, sin borrar el release, para no cortar descargas en curso.
-            gh release upload apk-latest EcoAlaya.apk --clobber
+            gh release upload apk-latest HidroponiaCIMA.apk --clobber
+            gh release delete-asset apk-latest EcoAlaya.apk --yes || true
             gh release edit apk-latest --title "$TITULO" --notes "$NOTAS"
           else
-            gh release create apk-latest EcoAlaya.apk --target "$GITHUB_SHA" --prerelease --title "$TITULO" --notes "$NOTAS"
+            gh release create apk-latest HidroponiaCIMA.apk --target "$GITHUB_SHA" --prerelease --title "$TITULO" --notes "$NOTAS"
           fi

@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const C = require('../js/calc.js');
 
-test('dosis EcoAlaya A + B + C para 20 L en crecimiento', () => {
+test('dosis Hidroponía CIMA A + B + C para 20 L en crecimiento', () => {
   const d = C.calcularDosis({ litros: 20 });
   assert.deepStrictEqual(d.ml, { A: 100, B: 100, C: 100 });
   assert.deepStrictEqual(d.porLitro, { A: 5, B: 5, C: 5 });

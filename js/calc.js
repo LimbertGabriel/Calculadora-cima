@@ -1,13 +1,13 @@
-// Lógica pura de EcoAlaya: dosis de solución nutritiva, rangos por cultivo y puntos.
+// Lógica pura de Hidroponía CIMA: dosis de solución nutritiva, rangos por cultivo y puntos.
 // Sin dependencias del navegador para poder probarla con Node.
 
 (function (root) {
   // mL de cada concentrado por litro de agua.
-  // EcoAlaya: A (fosfato monoamónico + nitrato de potasio), B (sulfato de magnesio + micronutrientes)
+  // Hidroponía CIMA: A (fosfato monoamónico + nitrato de potasio), B (sulfato de magnesio + micronutrientes)
   // y C (nitrato de calcio), cada concentrado preparado en 5 L.
   const PARTES = ['A', 'B', 'C'];
   const FORMULAS = {
-    ecoalaya: { nombre: 'EcoAlaya (A + B + C)', ml: { A: 5, B: 5, C: 5 } },
+    cima: { nombre: 'Hidroponía CIMA (A + B + C)', ml: { A: 5, B: 5, C: 5 } },
     personalizada: { nombre: 'Personalizada', ml: null },
   };
 
@@ -47,7 +47,7 @@
 
   // Devuelve los mL de cada parte (A, B, C) para el volumen de agua indicado.
   // `personalizado` son los mL/L de cada parte cuando la fórmula es "personalizada".
-  function calcularDosis({ litros, formula = 'ecoalaya', etapa = 'crecimiento', personalizado = {} }) {
+  function calcularDosis({ litros, formula = 'cima', etapa = 'crecimiento', personalizado = {} }) {
     litros = Number(litros);
     if (!(litros > 0)) throw new Error('El volumen de agua debe ser mayor a 0 litros.');
     const f = FORMULAS[formula];
@@ -84,10 +84,10 @@
     const resultado = { ph: clasificar(Number(ph), c.ph), ec: clasificar(Number(ec), c.ec) };
     resultado.enRango = resultado.ph === 'ok' && resultado.ec === 'ok';
     resultado.consejos = [];
-    if (resultado.ph === 'alto') resultado.consejos.push('pH alto: agrega regulador de pH "down" gota a gota y vuelve a medir.');
-    if (resultado.ph === 'bajo') resultado.consejos.push('pH bajo: agrega regulador de pH "up" gota a gota y vuelve a medir.');
+    if (resultado.ph === 'alto') resultado.consejos.push('pH alto: agrega ácido nítrico diluido gota a gota, mezcla y vuelve a medir.');
+    if (resultado.ph === 'bajo') resultado.consejos.push('pH bajo: agrega agua (o unas gotas de hidróxido de potasio), mezcla y vuelve a medir.');
     if (resultado.ec === 'alto') resultado.consejos.push('EC alta: la solución está muy concentrada; agrega agua sin nutrientes.');
-    if (resultado.ec === 'bajo') resultado.consejos.push('EC baja: faltan nutrientes; agrega solución A y B en la proporción indicada.');
+    if (resultado.ec === 'bajo') resultado.consejos.push('EC baja: faltan nutrientes; agrega A, B y C en la proporción indicada.');
     return resultado;
   }
 

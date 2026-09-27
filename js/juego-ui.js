@@ -1,4 +1,4 @@
-// Interfaz de "Mi Huerto EcoAlaya".
+// Interfaz de "Mi Huerto CIMA".
 (function () {
   const J = window.EcoJuego;
   const C = window.EcoCalc;
@@ -71,7 +71,7 @@
   }
 
   function enlaceWhatsApp(texto) {
-    const numero = (window.ECOALAYA_CONFIG && window.ECOALAYA_CONFIG.whatsapp) || '';
+    const numero = (window.CIMA_CONFIG && window.CIMA_CONFIG.whatsapp) || '';
     return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
   }
 
@@ -92,7 +92,7 @@
     }
     for (const logro of J.revisarLogros(juego)) {
       App.otorgarPuntos(logro.puntos, `Logro del juego: ${logro.nombre}`);
-      mensajes.push(`Logro “${logro.nombre}”: +${logro.puntos} puntos EcoAlaya.`);
+      mensajes.push(`Logro “${logro.nombre}”: +${logro.puntos} puntos CIMA.`);
     }
     guardar();
     render();
@@ -350,7 +350,7 @@
         <div>
           <h3>${escapar(m.nombre)}${tiene ? ` <span class="insignia-mini">${m.max > 1 ? `${tiene}/${m.max}` : 'Instalado'}</span>` : ''}</h3>
           <p>${escapar(m.descripcion)}</p>
-          <a href="${enlaceWhatsApp(`Hola EcoAlaya, jugando Mi Huerto me interesó ${PRODUCTO_REAL[id]}. ¿Me dan más información?`)}" target="_blank" rel="noopener">${icono('chat')}Pídelo de verdad a EcoAlaya</a>
+          <a href="${enlaceWhatsApp(`Hola Hidroponía CIMA, jugando Mi Huerto CIMA me interesó ${PRODUCTO_REAL[id]}. ¿Me dan más información?`)}" target="_blank" rel="noopener">${icono('chat')}Pídelo de verdad a CIMA</a>
         </div>
         <button type="button" data-mejora="${id}" ${agotada || juego.monedas < m.costo ? 'disabled' : ''} aria-label="${agotada ? 'Instalado' : `Comprar por ${m.costo} monedas`}">${agotada ? icono('check') : moneda(m.costo)}</button>
       </article>`;
@@ -491,7 +491,7 @@
     $('#pasar-dia').addEventListener('click', pasarDia);
 
     $('#reiniciar').addEventListener('click', async () => {
-      if (!(await App.confirmar('¿Reiniciar el juego? Perderás tu huerto y monedas. Tus puntos EcoAlaya y logros se conservan.', 'Reiniciar'))) return;
+      if (!(await App.confirmar('¿Reiniciar el juego? Perderás tu huerto y monedas. Tus puntos CIMA y logros se conservan.', 'Reiniciar'))) return;
       const logros = juego.logros;
       juego = J.nuevoJuego();
       juego.logros = logros; // evita volver a cobrar puntos por los mismos logros
@@ -499,7 +499,7 @@
       render();
     });
 
-    $('#cta-sistema').href = enlaceWhatsApp('Hola EcoAlaya, jugué Mi Huerto y quiero información sobre el sistema hidropónico familiar.');
+    $('#cta-sistema').href = enlaceWhatsApp('Hola Hidroponía CIMA, jugué Mi Huerto CIMA y quiero información sobre los sistemas hidropónicos.');
     render();
   }
 

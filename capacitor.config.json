@@ -1,8 +1,8 @@
 {
-  "appId": "com.ecoalaya.huerto",
-  "appName": "EcoAlaya",
+  "appId": "com.hidroponiacima.app",
+  "appName": "Hidroponía CIMA",
   "webDir": "www",
   "android": {
-    "backgroundColor": "#2e7d4f"
+    "backgroundColor": "#f3f6e9"
   }
 }

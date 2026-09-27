@@ -1,6 +1,6 @@
 // Service worker: permite usar la app sin internet.
 // Sirve desde caché al instante y actualiza en segundo plano (la versión nueva se ve en la siguiente visita).
-const CACHE = 'ecoalaya-v5';
+const CACHE = 'cima-v1';
 const ARCHIVOS = [
   './',
   'index.html',
@@ -12,6 +12,8 @@ const ARCHIVOS = [
   'js/juego-ui.js',
   'manifest.webmanifest',
   'icons/icono.svg',
+  'icons/marca-cima.svg',
+  'icons/logo-cima.svg',
   'icons/icono-192.png',
   'icons/icono-512.png',
   'fonts/baloo-2-latin-600-normal.woff2',

@@ -1,4 +1,4 @@
-// Motor de "Mi Huerto EcoAlaya": simulación hidropónica por turnos (un turno = un día).
+// Motor de "Mi Huerto CIMA": simulación hidropónica por turnos (un turno = un día).
 // Lógica pura, sin navegador, para poder probarla con Node.
 
 (function (root) {
@@ -23,8 +23,8 @@
 
   const INSUMOS = {
     nutrientes: { nombre: 'Nutrientes A + B + C', costo: 2 },
-    phMenos: { nombre: 'pH down', costo: 1 },
-    phMas: { nombre: 'pH up', costo: 1 },
+    phMenos: { nombre: 'Ácido nítrico', costo: 1 },
+    phMas: { nombre: 'Hidróxido de potasio', costo: 1 },
     agua: { nombre: 'Rellenar agua', costo: 0 },
     cambio: { nombre: 'Cambiar toda el agua', costo: 3 },
     tratamiento: { nombre: 'Jabón potásico', costo: 10 },
@@ -114,8 +114,8 @@
     const a = j.agua;
     const problemas = [];
     const r = cultivo ? rangoDe(cultivo) : rangoTanque(j);
-    if (a.ph > r.ph[1]) problemas.push({ tipo: 'phAlto', texto: `pH alto (${a.ph.toFixed(1)}). Usa pH down.` });
-    if (a.ph < r.ph[0]) problemas.push({ tipo: 'phBajo', texto: `pH bajo (${a.ph.toFixed(1)}). Usa pH up.` });
+    if (a.ph > r.ph[1]) problemas.push({ tipo: 'phAlto', texto: `pH alto (${a.ph.toFixed(1)}). Agrega ácido nítrico.` });
+    if (a.ph < r.ph[0]) problemas.push({ tipo: 'phBajo', texto: `pH bajo (${a.ph.toFixed(1)}). Agrega agua o hidróxido de potasio.` });
     if (a.ec > r.ec[1]) problemas.push({ tipo: 'ecAlta', texto: `EC alta (${a.ec.toFixed(1)}). Agrega agua para diluir.` });
     if (a.ec < r.ec[0]) problemas.push({ tipo: 'ecBaja', texto: `EC baja (${a.ec.toFixed(1)}). Agrega nutrientes.` });
     if (a.nivel < NIVEL_MINIMO) problemas.push({ tipo: 'nivel', texto: `Nivel de agua muy bajo (${Math.round(a.nivel)} %). Rellena el tanque.` });
@@ -312,10 +312,10 @@
     const perfecto = vivas.length > 0 && diagnostico(j).length === 0 && rangoTanque(j).compatible;
     j.racha = perfecto ? j.racha + 1 : 0;
 
-    // Rescate: si te quedaste sin monedas ni plantas, EcoAlaya te regala semillas.
+    // Rescate: si te quedaste sin monedas ni plantas, Hidroponía CIMA te regala semillas.
     if (!j.macetas.some((m) => m && !m.muerta) && j.monedas < PLANTAS.lechuga.semilla + INSUMOS.nutrientes.costo * 3) {
       j.monedas += 30;
-      eventos.push('EcoAlaya te regaló 30 monedas para volver a empezar.');
+      eventos.push('Hidroponía CIMA te regaló 30 monedas para volver a empezar.');
     }
 
     j.dia += 1;

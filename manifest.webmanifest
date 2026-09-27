@@ -1,13 +1,13 @@
 {
-  "name": "EcoAlaya · Mi huerto hidropónico",
-  "short_name": "EcoAlaya",
-  "description": "Juega a cultivar en hidroponía, calcula tu solución nutritiva y gana puntos EcoAlaya.",
+  "name": "Hidroponía CIMA · Mi huerto hidropónico",
+  "short_name": "Hidroponía CIMA",
+  "description": "Juega a cultivar en hidroponía, calcula tu solución nutritiva y gana puntos CIMA.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef4ec",
-  "theme_color": "#1d6b3d",
+  "background_color": "#f3f6e9",
+  "theme_color": "#2f4830",
   "icons": [
     { "src": "icons/icono-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icono-512.png", "sizes": "512x512", "type": "image/png" },

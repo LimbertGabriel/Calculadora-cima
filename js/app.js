@@ -1,7 +1,7 @@
-// Interfaz de EcoAlaya: calculadora, sistemas, registro de cultivo y puntos.
+// Interfaz de Hidroponía CIMA: calculadora, sistemas, registro de cultivo y puntos.
 (function () {
   const C = window.EcoCalc;
-  const CONFIG = window.ECOALAYA_CONFIG || {};
+  const CONFIG = window.CIMA_CONFIG || {};
   const PRODUCTOS = CONFIG.productos || [];
   const CLAVE = 'ecoalaya:v1';
   const $ = (sel) => document.querySelector(sel);
@@ -114,7 +114,7 @@
           personalizado: { A: form.mlA.value, B: form.mlB.value, C: form.mlC.value },
         });
         const c = C.CULTIVOS[form.cultivo.value];
-        const juegos = PRODUCTOS.filter((p) => p.tipo === 'nutrientes' && p.rindeLitros)
+        const juegos = PRODUCTOS.filter((p) => p.tipo === 'nutrientes' && p.rindeLitros && p.precio != null)
           .map((p) => `<li><span class="texto">${escapar(p.nombre)} (Bs ${p.precio})</span><b>${C.llenadosPorJuego(p.rindeLitros, litros)} tanques</b></li>`)
           .join('');
         salida.innerHTML = `
@@ -129,6 +129,7 @@
             <li>Agrega la <b>C</b> y mezcla bien. Luego mide y ajusta el pH.</li>
           </ol>
           <p class="aviso-quimico">Nunca mezcles los concentrados entre sí: el calcio de la C se junta con el fosfato de la A y el sulfato de la B y forma un sólido que las plantas no pueden absorber.</p>
+          <p class="aviso-quimico"><b>Ajuste de pH:</b> si está alto, agrega ácido nítrico diluido gota a gota; si está bajo, agrega agua (o unas gotas de hidróxido de potasio). El ácido nítrico es corrosivo: usa guantes y lentes, y vierte siempre el ácido sobre el agua, nunca al revés.</p>
           <p class="rango">Rango ideal para ${escapar(c.nombre)}: pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]} mS/cm</p>
           ${juegos ? `<h3 class="titulo-seccion">¿Cuánto te rinde cada juego de nutrientes?</h3><ul class="lista">${juegos}</ul>` : ''}`;
       } catch (err) {
@@ -142,21 +143,31 @@
     return `https://wa.me/${CONFIG.whatsapp || ''}?text=${encodeURIComponent(texto)}`;
   }
 
+  const ICONO_PRODUCTO = { sistema: 'sistema', nutrientes: 'gota', medidor: 'ph', curso: 'libro' };
+
   function renderCatalogo() {
-    const tarjeta = (p) => `<article class="producto producto-${p.tipo}">
-        <span class="producto-icono"><svg aria-hidden="true"><use href="#i-${p.tipo === 'sistema' ? 'sistema' : 'gota'}"/></svg></span>
+    const tarjeta = (p) => {
+      const precio = p.precio == null ? null : `Bs ${p.precio}`;
+      const mensaje = precio
+        ? `Hola Hidroponía CIMA, quiero pedir: ${p.nombre} (${precio}). Estoy en ${CONFIG.ciudad || 'Bolivia'}.`
+        : `Hola Hidroponía CIMA, quiero información y precio de: ${p.nombre}. Estoy en ${CONFIG.ciudad || 'Bolivia'}.`;
+      return `<article class="producto producto-${p.tipo}">
+        <span class="producto-icono"><svg aria-hidden="true"><use href="#i-${ICONO_PRODUCTO[p.tipo] || 'hoja'}"/></svg></span>
         <div class="producto-texto">
           <h3>${escapar(p.nombre)}</h3>
           ${p.descripcion ? `<p>${escapar(p.descripcion)}</p>` : ''}
-          ${p.rindeLitros ? `<p>Rinde ${p.rindeLitros} L de solución (Bs ${(p.precio / p.rindeLitros).toFixed(2).replace(".", ",")} por litro).</p>` : ''}
+          ${p.rindeLitros && precio ? `<p>Rinde ${p.rindeLitros} L de solución (Bs ${(p.precio / p.rindeLitros).toFixed(2).replace('.', ',')} por litro).</p>` : ''}
         </div>
         <div class="producto-compra">
-          <b class="precio">Bs ${p.precio}</b>
-          <a class="boton" href="${enlaceWhatsApp(`Hola EcoAlaya, quiero pedir: ${p.nombre} (Bs ${p.precio}). Estoy en ${CONFIG.ciudad || 'Bolivia'}.`)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>Pedir</a>
+          ${precio ? `<b class="precio">${precio}</b>` : '<span class="precio-consulta">Consultar precio</span>'}
+          <a class="boton" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>${precio ? 'Pedir' : 'Consultar'}</a>
         </div>
       </article>`;
-    $('#catalogo-sistemas').innerHTML = PRODUCTOS.filter((p) => p.tipo === 'sistema').map(tarjeta).join('');
-    $('#catalogo-nutrientes').innerHTML = PRODUCTOS.filter((p) => p.tipo === 'nutrientes').map(tarjeta).join('');
+    };
+    const de = (...tipos) => PRODUCTOS.filter((p) => tipos.includes(p.tipo)).map(tarjeta).join('');
+    $('#catalogo-sistemas').innerHTML = de('sistema');
+    $('#catalogo-nutrientes').innerHTML = de('nutrientes');
+    $('#catalogo-medidores').innerHTML = de('medidor', 'curso');
   }
 
   // ---------- Sistemas ----------
@@ -292,7 +303,7 @@
       if (!(await confirmar(`¿Canjear ${r.costo} puntos por "${r.nombre}"?`, 'Canjear'))) return;
       sumarPuntos(-r.costo, `Canje: ${r.nombre}`);
       guardar();
-      aviso('Canje registrado. Muestra este movimiento a EcoAlaya para recibir tu premio.');
+      aviso('Canje registrado. Muestra este movimiento a Hidroponía CIMA para recibir tu premio.');
       render();
     });
 
@@ -300,7 +311,7 @@
       const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `ecoalaya-respaldo-${hoy()}.json`;
+      a.download = `cima-respaldo-${hoy()}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
     });
@@ -327,7 +338,7 @@
     renderPuntos();
   }
 
-  // Puente para el juego: sus logros suman puntos EcoAlaya reales.
+  // Puente para el juego: sus logros suman puntos CIMA reales.
   window.EcoApp = {
     aviso,
     confirmar,

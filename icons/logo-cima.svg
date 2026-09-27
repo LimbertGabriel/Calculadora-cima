@@ -1,20 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#f3f6e9"/><g transform="translate(256 256) scale(2.75) translate(-100 -84)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
   <defs>
-    <linearGradient id="cm-deg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cima-degradado" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0.05" stop-color="#cbd600"/>
       <stop offset="0.45" stop-color="#8fb31c"/>
       <stop offset="0.74" stop-color="#3d9a57"/>
       <stop offset="0.86" stop-color="#1b8b8d"/>
     </linearGradient>
-    <clipPath id="cm-circ"><circle cx="100" cy="84" r="62"/></clipPath>
+    <clipPath id="cima-circulo"><circle cx="100" cy="84" r="62"/></clipPath>
+    <path id="cima-arco" d="M21.7 100.6 A80 80 0 0 0 178.3 100.6"/>
   </defs>
   <circle cx="100" cy="84" r="64.5" fill="#2f4830"/>
-  <circle cx="100" cy="84" r="62" fill="url(#cm-deg)"/>
-  <g clip-path="url(#cm-circ)">
+  <circle cx="100" cy="84" r="62" fill="url(#cima-degradado)"/>
+  <g clip-path="url(#cima-circulo)">
     <path d="M26 128 Q66 114 104 122 T180 116 V160 H26Z" fill="#ffffff"/>
     <path d="M46 86 L80 58 L88 64 L102 44 L117 62 L125 56 L156 86 L146 84 L125 64 L117 70 L102 54 L90 72 L80 66 L58 86 Z" fill="#ffffff"/>
     <path d="M100 124 C80 126 56 110 60 90 C64 78 84 78 94 94 C98 102 100 112 100 124 Z" fill="#ffffff"/>
     <path d="M100 124 C120 126 144 110 140 90 C136 78 116 78 106 94 C102 102 100 112 100 124 Z" fill="#ffffff"/>
     <path d="M99 122 C92 108 82 98 70 90 M101 122 C108 108 118 98 130 90" fill="none" stroke="#7aaa2a" stroke-width="2.4" stroke-linecap="round"/>
   </g>
-</g></svg>
+  <text font-family="'Baloo 2', 'Arial Black', sans-serif" font-weight="800" font-size="17" fill="#2f4830" letter-spacing="0.8">
+    <textPath href="#cima-arco" startOffset="50%" text-anchor="middle">HIDROPONIA CIMA</textPath>
+  </text>
+</svg>

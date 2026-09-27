@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.ecoalaya.huerto"
+    namespace = "com.hidroponiacima.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.ecoalaya.huerto"
+        applicationId "com.hidroponiacima.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // En GitHub Actions el número de versión sube con cada compilación para que el APK se instale encima del anterior.

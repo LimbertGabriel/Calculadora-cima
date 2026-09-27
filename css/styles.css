@@ -5,20 +5,23 @@
 @font-face { font-family: "Figtree"; font-weight: 600; font-display: swap; src: url("../fonts/figtree-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Figtree"; font-weight: 700; font-display: swap; src: url("../fonts/figtree-latin-700-normal.woff2") format("woff2"); }
 
-/* ============ Paleta: invernadero (hoja, agua, sol, arcilla) ============ */
+/* ============ Paleta Hidroponía CIMA: verde bosque, lima, turquesa y crema del logo ============ */
 :root {
-  --fondo: #eef4ec;
+  --fondo: #f1f4e6;
   --superficie: #ffffff;
-  --superficie-2: #f5f9f3;
-  --texto: #16301f;
-  --suave: #5a7163;
-  --linea: #d8e6da;
+  --superficie-2: #f7f9ef;
+  --texto: #1f3320;
+  --suave: #5c6e55;
+  --linea: #dde5cf;
 
-  --hoja: #25864c;
-  --hoja-fuerte: #17613a;
-  --hoja-claro: #dcf0e1;
-  --agua: #2485c4;
-  --agua-claro: #dbeefc;
+  --hoja: #3f7a2c;
+  --hoja-fuerte: #2f4830;
+  --hoja-claro: #e5efd2;
+  --lima: #b3c700;
+  --lima-2: #8fb31c;
+  --turquesa: #1b8b8d;
+  --agua: #1b8b8d;
+  --agua-claro: #d5eeee;
   --sol: #f2a01f;
   --sol-fuerte: #d3830a;
   --sol-claro: #fff0d2;
@@ -29,7 +32,7 @@
   --rosa-claro: #fbe3eb;
   --ambar-claro: #fdf0d8;
 
-  --ok: #25864c;
+  --ok: #3f7a2c;
   --aviso: #b86e00;
   --mal: #c93c3c;
   --mal-claro: #fbe4e2;
@@ -66,17 +69,20 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --fondo: #0c1611;
-    --superficie: #14231a;
-    --superficie-2: #192b20;
-    --texto: #e2f0e6;
-    --suave: #9bb3a3;
-    --linea: #253a2d;
-    --hoja: #4cc27b;
-    --hoja-fuerte: #1f6e42;
-    --hoja-claro: #193826;
-    --agua: #52aee6;
-    --agua-claro: #13293a;
+    --fondo: #10170f;
+    --superficie: #182216;
+    --superficie-2: #1d2a1b;
+    --texto: #e8f0dc;
+    --suave: #a4b597;
+    --linea: #2a3a27;
+    --hoja: #a6cc3a;
+    --hoja-fuerte: #2f4830;
+    --hoja-claro: #26361f;
+    --lima: #c4d62a;
+    --lima-2: #9fc23a;
+    --turquesa: #4fb8b9;
+    --agua: #4fb8b9;
+    --agua-claro: #15302f;
     --sol: #f6b23f;
     --sol-fuerte: #f6b23f;
     --sol-claro: #3a2b0e;
@@ -85,7 +91,7 @@
     --rosa: #ec7fa2;
     --rosa-claro: #3d1d2a;
     --ambar-claro: #34290f;
-    --ok: #4cc27b;
+    --ok: #a6cc3a;
     --aviso: #f0b34a;
     --mal: #f08a84;
     --mal-claro: #3d1c1a;
@@ -109,17 +115,20 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --fondo: #0c1611;
-  --superficie: #14231a;
-  --superficie-2: #192b20;
-  --texto: #e2f0e6;
-  --suave: #9bb3a3;
-  --linea: #253a2d;
-  --hoja: #4cc27b;
-  --hoja-fuerte: #1f6e42;
-  --hoja-claro: #193826;
-  --agua: #52aee6;
-  --agua-claro: #13293a;
+  --fondo: #10170f;
+  --superficie: #182216;
+  --superficie-2: #1d2a1b;
+  --texto: #e8f0dc;
+  --suave: #a4b597;
+  --linea: #2a3a27;
+  --hoja: #a6cc3a;
+  --hoja-fuerte: #2f4830;
+  --hoja-claro: #26361f;
+  --lima: #c4d62a;
+  --lima-2: #9fc23a;
+  --turquesa: #4fb8b9;
+  --agua: #4fb8b9;
+  --agua-claro: #15302f;
   --sol: #f6b23f;
   --sol-fuerte: #f6b23f;
   --sol-claro: #3a2b0e;
@@ -128,7 +137,7 @@
   --rosa: #ec7fa2;
   --rosa-claro: #3d1d2a;
   --ambar-claro: #34290f;
-  --ok: #4cc27b;
+  --ok: #a6cc3a;
   --aviso: #f0b34a;
   --mal: #f08a84;
   --mal-claro: #3d1c1a;
@@ -190,21 +199,19 @@ section { display: grid; gap: 12px; }
   align-items: center;
   gap: 12px;
   padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 14px;
-  background: linear-gradient(135deg, var(--hoja-fuerte), #25864c 70%, #2f9a6a);
+  background: linear-gradient(135deg, #243a25, #2f4830 55%, #3f6b34);
   color: #fff;
 }
 .marca { display: flex; align-items: center; gap: 10px; }
 .marca-logo {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.16);
-  font-size: 24px;
-  color: #bff0c9;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f3f6e9;
+  padding: 2px;
 }
-.cabecera h1 { font-size: 1.45rem; letter-spacing: 0.2px; }
+.cabecera h1 { font-size: 1.35rem; letter-spacing: 0.2px; }
 .cabecera p { margin: 0; font-size: 0.8rem; opacity: 0.85; }
 .insignia-puntos {
   display: inline-flex;
@@ -494,9 +501,9 @@ input:focus, select:focus { border-color: var(--hoja); }
   margin-top: 4px;
   font-size: 1.2rem;
   border-radius: 18px;
-  background: linear-gradient(135deg, var(--sol), #f07f1f);
-  color: #3a2200;
-  box-shadow: 0 6px 16px rgba(240, 127, 31, 0.35);
+  background: linear-gradient(135deg, #cbd600, #8fb31c 60%, #3d9a57);
+  color: #1c2e1c;
+  box-shadow: 0 6px 16px rgba(143, 179, 28, 0.4);
 }
 .pasar-dia svg { font-size: 1.5em; }
 .pasar-dia svg use { stroke-width: 2.2; }
@@ -562,7 +569,7 @@ input:focus, select:focus { border-color: var(--hoja); }
   margin-top: 16px;
   padding: 20px;
   border-radius: 22px;
-  background: linear-gradient(135deg, var(--hoja-fuerte), #25864c);
+  background: linear-gradient(135deg, #243a25, #2f4830 50%, #1b6f6f);
   color: #fff;
 }
 .cta h3 { font-size: 1.35rem; max-width: 16ch; }
@@ -601,7 +608,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .sistema-cab { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .sistema p { margin: 0; color: var(--suave); font-size: 0.9rem; }
 .progreso { height: 10px; border-radius: 99px; background: var(--barra); overflow: hidden; }
-.progreso span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--hoja), #7cd28f); }
+.progreso span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--hoja), var(--lima)); }
 
 /* ============ Puntos ============ */
 .saldo-hero {
@@ -609,9 +616,9 @@ input:focus, select:focus { border-color: var(--hoja); }
   gap: 2px;
   padding: 22px 20px;
   border-radius: 22px;
-  background: linear-gradient(135deg, var(--sol), #f07f1f);
-  color: #3a2200;
-  box-shadow: 0 8px 22px rgba(240, 127, 31, 0.3);
+  background: linear-gradient(135deg, #cbd600, #8fb31c 55%, #1b8b8d);
+  color: #1c2e1c;
+  box-shadow: 0 8px 22px rgba(143, 179, 28, 0.35);
 }
 .saldo-hero small { font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; font-size: 0.75rem; }
 .saldo-cifra { font-family: var(--fuente-titulo); font-weight: 800; font-size: 3.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -632,7 +639,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .recompensa b { display: block; }
 .recompensa small { color: var(--suave); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
 .recompensa .progreso { margin-top: 6px; height: 6px; }
-.recompensa .progreso span { background: linear-gradient(90deg, var(--sol), #f07f1f); }
+.recompensa .progreso span { background: linear-gradient(90deg, #cbd600, #8fb31c); }
 .recompensa button { min-height: 42px; padding: 8px 14px; border-radius: 12px; }
 .respaldo { margin-top: 8px; }
 
@@ -780,3 +787,5 @@ button .costo svg { color: inherit; }
 .producto-compra { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--linea); }
 .precio { font-family: var(--fuente-titulo); font-size: 1.5rem; font-weight: 800; color: var(--texto); }
 .producto-compra .boton { min-height: 44px; padding: 8px 16px; }
+.precio-consulta { font-weight: 700; color: var(--suave); }
+.producto-medidor .producto-icono, .producto-curso .producto-icono { background: var(--sol-claro); color: var(--sol-fuerte); }

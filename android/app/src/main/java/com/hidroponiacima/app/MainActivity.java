@@ -1,4 +1,4 @@
-package com.ecoalaya.huerto;
+package com.hidroponiacima.app;
 
 import com.getcapacitor.BridgeActivity;
 
