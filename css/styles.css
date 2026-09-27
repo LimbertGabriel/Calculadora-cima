@@ -585,9 +585,10 @@ input:focus, select:focus { border-color: var(--hoja); }
 .resultado:empty { display: none; }
 .resultado { padding: 18px; border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra); }
 .resultado p { margin: 8px 0 0; font-size: 0.93rem; }
-.dosis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dosis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .dosis > div { display: grid; justify-items: center; padding: 14px 8px; border-radius: 16px; background: var(--hoja-claro); }
-.dosis > div:last-child { background: var(--agua-claro); }
+.dosis .parte-b { background: var(--agua-claro); }
+.dosis .parte-c { background: var(--sol-claro); }
 .dosis small { color: var(--suave); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; font-size: 0.72rem; }
 .cifra { font-family: var(--fuente-titulo); font-weight: 800; font-size: 2.3rem; line-height: 1; color: var(--texto); font-variant-numeric: tabular-nums; }
 .unidad { font-weight: 700; color: var(--suave); }
@@ -755,3 +756,27 @@ input:focus, select:focus { border-color: var(--hoja); }
 .sistema-cab b { font-family: var(--fuente-titulo); color: var(--hoja); }
 button .costo { color: inherit; font-size: 0.95rem; font-weight: 800; }
 button .costo svg { color: inherit; }
+
+.pasos { margin: 10px 0 0; padding-left: 22px; display: grid; gap: 4px; font-size: 0.93rem; }
+.aviso-quimico { padding: 10px 12px; border-radius: 12px; background: var(--sol-claro); font-size: 0.88rem !important; }
+.resultado .lista { padding: 0; }
+.fila:has(> :nth-child(3)) { grid-template-columns: repeat(3, 1fr); }
+
+/* ============ Catálogo ============ */
+.catalogo { display: grid; gap: 10px; }
+.producto {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+.producto-icono { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--hoja-claro); color: var(--hoja); font-size: 26px; }
+.producto-nutrientes .producto-icono { background: var(--agua-claro); color: var(--agua); }
+.producto h3 { font-size: 1.05rem; }
+.producto p { margin: 2px 0 0; color: var(--suave); font-size: 0.88rem; }
+.producto-compra { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--linea); }
+.precio { font-family: var(--fuente-titulo); font-size: 1.5rem; font-weight: 800; color: var(--texto); }
+.producto-compra .boton { min-height: 44px; padding: 8px 16px; }

@@ -45,7 +45,7 @@ test('insumos modifican el agua y cobran monedas', () => {
 });
 
 test('la dosis real enseña los mL de la calculadora', () => {
-  assert.deepStrictEqual(J.dosisReal(), { mlA: 25, mlB: 10 });
+  assert.deepStrictEqual(J.dosisReal(), { A: 25, B: 25, C: 25 });
 });
 
 test('no se puede sembrar un cultivo bloqueado ni en maceta ocupada', () => {

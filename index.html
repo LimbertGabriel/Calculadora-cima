@@ -98,7 +98,7 @@
       <div class="cta">
         <svg class="cta-hoja" aria-hidden="true"><use href="#i-hoja"/></svg>
         <h3>¿Listo para cultivar de verdad?</h3>
-        <p>Todo lo que aprendes aquí funciona igual en un sistema hidropónico familiar EcoAlaya.</p>
+        <p>Todo lo que aprendes aquí funciona igual en una torre (Bs 650) o un sistema NFT familiar (Bs 850) de EcoAlaya, con entrega en La Paz.</p>
         <a id="cta-sistema" class="boton boton-claro" target="_blank" rel="noopener"><svg><use href="#i-chat"/></svg>Quiero mi sistema EcoAlaya</a>
       </div>
 
@@ -137,7 +137,8 @@
         <label>Fórmula <select name="formula"></select></label>
         <div id="calc-personalizada" class="fila" hidden>
           <label>mL/L de A <input name="mlA" type="number" min="0" step="0.1" value="5" inputmode="decimal"></label>
-          <label>mL/L de B <input name="mlB" type="number" min="0" step="0.1" value="2" inputmode="decimal"></label>
+          <label>mL/L de B <input name="mlB" type="number" min="0" step="0.1" value="5" inputmode="decimal"></label>
+          <label>mL/L de C <input name="mlC" type="number" min="0" step="0.1" value="5" inputmode="decimal"></label>
         </div>
         <button type="submit">Calcular dosis</button>
       </form>
@@ -148,8 +149,14 @@
     <section id="p-sistemas" role="tabpanel" hidden>
       <header class="encabezado">
         <span class="encabezado-icono"><svg><use href="#i-sistema"/></svg></span>
-        <div><h2>Mis sistemas</h2><p>Tus equipos EcoAlaya y cuánto falta para cosechar.</p></div>
+        <div><h2>Sistemas y nutrientes</h2><p>Equípate y sigue el avance de tus cultivos.</p></div>
       </header>
+      <h3 class="titulo-seccion">Productos EcoAlaya</h3>
+      <div id="catalogo-sistemas" class="catalogo"></div>
+      <h3 class="titulo-seccion">Nutrientes A + B + C</h3>
+      <p class="nota">5 mL de cada parte por litro de agua. Cada concentrado viene preparado en 5 L.</p>
+      <div id="catalogo-nutrientes" class="catalogo"></div>
+      <h3 class="titulo-seccion">Mis sistemas</h3>
       <div id="lista-sistemas" class="tarjetas"></div>
       <h3 class="titulo-seccion">Registrar un sistema</h3>
       <form id="form-sistema" class="formulario tarjeta">

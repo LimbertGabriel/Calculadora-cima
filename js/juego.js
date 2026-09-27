@@ -22,7 +22,7 @@
   };
 
   const INSUMOS = {
-    nutrientes: { nombre: 'Nutrientes A + B', costo: 2 },
+    nutrientes: { nombre: 'Nutrientes A + B + C', costo: 2 },
     phMenos: { nombre: 'pH down', costo: 1 },
     phMas: { nombre: 'pH up', costo: 1 },
     agua: { nombre: 'Rellenar agua', costo: 0 },
@@ -138,7 +138,9 @@
   // Dosis real equivalente, para enseñar a usar la calculadora.
   function dosisReal() {
     const d = Calc.calcularDosis({ litros: LITROS });
-    return { mlA: d.mlA * DOSIS_FRACCION, mlB: d.mlB * DOSIS_FRACCION };
+    const ml = {};
+    for (const parte of Calc.PARTES) ml[parte] = d.ml[parte] * DOSIS_FRACCION;
+    return ml;
   }
 
   function usarInsumo(j, id) {
@@ -154,7 +156,7 @@
       case 'nutrientes': {
         a.ec = r2(a.ec + DOSIS_EC * (100 / a.nivel));
         const d = dosisReal();
-        mensaje = `EC sube a ${a.ec.toFixed(1)}. En la vida real: ${d.mlA} mL de A y ${d.mlB} mL de B en ${LITROS} L.`;
+        mensaje = `EC sube a ${a.ec.toFixed(1)}. En la vida real: ${d.A} mL de A, ${d.B} mL de B y ${d.C} mL de C en ${LITROS} L.`;
         break;
       }
       case 'phMenos':

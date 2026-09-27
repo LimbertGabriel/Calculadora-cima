@@ -2,10 +2,13 @@
 // Sin dependencias del navegador para poder probarla con Node.
 
 (function (root) {
-  // Solución Hidropónica La Molina: 5 mL de A y 2 mL de B por litro de agua.
+  // mL de cada concentrado por litro de agua.
+  // EcoAlaya: A (fosfato monoamónico + nitrato de potasio), B (sulfato de magnesio + micronutrientes)
+  // y C (nitrato de calcio), cada concentrado preparado en 5 L.
+  const PARTES = ['A', 'B', 'C'];
   const FORMULAS = {
-    lamolina: { nombre: 'La Molina (A + B)', mlA: 5, mlB: 2 },
-    personalizada: { nombre: 'Personalizada', mlA: null, mlB: null },
+    ecoalaya: { nombre: 'EcoAlaya (A + B + C)', ml: { A: 5, B: 5, C: 5 } },
+    personalizada: { nombre: 'Personalizada', ml: null },
   };
 
   // Rangos orientativos de pH y conductividad eléctrica (EC, mS/cm).
@@ -32,7 +35,7 @@
 
   const RECOMPENSAS = [
     { id: 'semillas', nombre: 'Sobre de semillas', costo: 150 },
-    { id: 'nutrientes', nombre: 'Recarga de solución A + B (1 L)', costo: 400 },
+    { id: 'nutrientes', nombre: 'Juego de nutrientes A + B + C para 200 L', costo: 400 },
     { id: 'phmetro', nombre: 'Kit medidor de pH', costo: 800 },
     { id: 'descuento', nombre: '15 % de descuento en un módulo', costo: 1200 },
   ];
@@ -42,7 +45,9 @@
     return Math.round(valor * f) / f;
   }
 
-  function calcularDosis({ litros, formula = 'lamolina', etapa = 'crecimiento', mlA, mlB }) {
+  // Devuelve los mL de cada parte (A, B, C) para el volumen de agua indicado.
+  // `personalizado` son los mL/L de cada parte cuando la fórmula es "personalizada".
+  function calcularDosis({ litros, formula = 'ecoalaya', etapa = 'crecimiento', personalizado = {} }) {
     litros = Number(litros);
     if (!(litros > 0)) throw new Error('El volumen de agua debe ser mayor a 0 litros.');
     const f = FORMULAS[formula];
@@ -50,18 +55,20 @@
     const e = ETAPAS[etapa];
     if (!e) throw new Error(`Etapa desconocida: ${etapa}`);
 
-    const porLitroA = f.mlA ?? Number(mlA);
-    const porLitroB = f.mlB ?? Number(mlB);
-    if (!(porLitroA >= 0) || !(porLitroB >= 0)) {
-      throw new Error('Indica los mL por litro de las soluciones A y B.');
+    const ml = {};
+    const porLitro = {};
+    for (const parte of PARTES) {
+      const base = f.ml ? f.ml[parte] : Number(personalizado[parte]);
+      if (!(base >= 0)) throw new Error('Indica los mL por litro de las soluciones A, B y C.');
+      porLitro[parte] = base * e.factor;
+      ml[parte] = redondear(litros * base * e.factor, 1);
     }
+    return { ml, porLitro };
+  }
 
-    return {
-      mlA: redondear(litros * porLitroA * e.factor, 1),
-      mlB: redondear(litros * porLitroB * e.factor, 1),
-      porLitroA: porLitroA * e.factor,
-      porLitroB: porLitroB * e.factor,
-    };
+  // Cuántas veces se puede llenar un tanque con un juego de nutrientes que rinde `rindeLitros`.
+  function llenadosPorJuego(rindeLitros, litrosTanque) {
+    return Math.floor(rindeLitros / litrosTanque);
   }
 
   // Devuelve 'bajo', 'ok' o 'alto' para un valor frente a un rango [min, max].
@@ -93,8 +100,8 @@
   }
 
   const api = {
-    FORMULAS, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
-    calcularDosis, evaluarMedicion, puntosPorMedicion, saldo,
+    PARTES, FORMULAS, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
+    calcularDosis, llenadosPorJuego, evaluarMedicion, puntosPorMedicion, saldo,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -1,6 +1,6 @@
 // Service worker: permite usar la app sin internet.
 // Sirve desde caché al instante y actualiza en segundo plano (la versión nueva se ve en la siguiente visita).
-const CACHE = 'ecoalaya-v4';
+const CACHE = 'ecoalaya-v5';
 const ARCHIVOS = [
   './',
   'index.html',

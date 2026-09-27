@@ -1,6 +1,8 @@
 // Interfaz de EcoAlaya: calculadora, sistemas, registro de cultivo y puntos.
 (function () {
   const C = window.EcoCalc;
+  const CONFIG = window.ECOALAYA_CONFIG || {};
+  const PRODUCTOS = CONFIG.productos || [];
   const CLAVE = 'ecoalaya:v1';
   const $ = (sel) => document.querySelector(sel);
 
@@ -104,26 +106,57 @@
       ev.preventDefault();
       const salida = $('#calc-resultado');
       try {
+        const litros = Number(form.litros.value);
         const d = C.calcularDosis({
-          litros: form.litros.value,
+          litros,
           formula: form.formula.value,
           etapa: form.etapa.value,
-          mlA: form.mlA.value,
-          mlB: form.mlB.value,
+          personalizado: { A: form.mlA.value, B: form.mlB.value, C: form.mlC.value },
         });
         const c = C.CULTIVOS[form.cultivo.value];
+        const juegos = PRODUCTOS.filter((p) => p.tipo === 'nutrientes' && p.rindeLitros)
+          .map((p) => `<li><span class="texto">${escapar(p.nombre)} (Bs ${p.precio})</span><b>${C.llenadosPorJuego(p.rindeLitros, litros)} tanques</b></li>`)
+          .join('');
         salida.innerHTML = `
           <div class="dosis">
-            <div><small>Solución A</small><span class="cifra">${d.mlA}</span><span class="unidad">mL</span></div>
-            <div><small>Solución B</small><span class="cifra">${d.mlB}</span><span class="unidad">mL</span></div>
+            ${C.PARTES.map((parte) => `<div class="parte-${parte.toLowerCase()}"><small>Solución ${parte}</small><span class="cifra">${d.ml[parte]}</span><span class="unidad">mL</span></div>`).join('')}
           </div>
-          <p>Para ${escapar(form.litros.value)} L de agua (${d.porLitroA} mL/L de A y ${d.porLitroB} mL/L de B).
-          Agrega primero la A, mezcla bien y luego la B; nunca las mezcles puras.</p>
-          <p class="rango">Rango ideal para ${escapar(c.nombre)}: pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]} mS/cm</p>`;
+          <p>Para ${litros} L de agua: ${C.PARTES.map((parte) => `${d.porLitro[parte]} mL/L de ${parte}`).join(', ')}.</p>
+          <ol class="pasos">
+            <li>Llena el tanque con el agua.</li>
+            <li>Agrega la <b>A</b> y mezcla bien.</li>
+            <li>Agrega la <b>B</b> y mezcla bien.</li>
+            <li>Agrega la <b>C</b> y mezcla bien. Luego mide y ajusta el pH.</li>
+          </ol>
+          <p class="aviso-quimico">Nunca mezcles los concentrados entre sí: el calcio de la C se junta con el fosfato de la A y el sulfato de la B y forma un sólido que las plantas no pueden absorber.</p>
+          <p class="rango">Rango ideal para ${escapar(c.nombre)}: pH ${c.ph[0]}–${c.ph[1]} · EC ${c.ec[0]}–${c.ec[1]} mS/cm</p>
+          ${juegos ? `<h3 class="titulo-seccion">¿Cuánto te rinde cada juego de nutrientes?</h3><ul class="lista">${juegos}</ul>` : ''}`;
       } catch (err) {
         salida.innerHTML = `<p class="error">${escapar(err.message)}</p>`;
       }
     });
+  }
+
+  // ---------- Catálogo ----------
+  function enlaceWhatsApp(texto) {
+    return `https://wa.me/${CONFIG.whatsapp || ''}?text=${encodeURIComponent(texto)}`;
+  }
+
+  function renderCatalogo() {
+    const tarjeta = (p) => `<article class="producto producto-${p.tipo}">
+        <span class="producto-icono"><svg aria-hidden="true"><use href="#i-${p.tipo === 'sistema' ? 'sistema' : 'gota'}"/></svg></span>
+        <div class="producto-texto">
+          <h3>${escapar(p.nombre)}</h3>
+          ${p.descripcion ? `<p>${escapar(p.descripcion)}</p>` : ''}
+          ${p.rindeLitros ? `<p>Rinde ${p.rindeLitros} L de solución (Bs ${(p.precio / p.rindeLitros).toFixed(2).replace(".", ",")} por litro).</p>` : ''}
+        </div>
+        <div class="producto-compra">
+          <b class="precio">Bs ${p.precio}</b>
+          <a class="boton" href="${enlaceWhatsApp(`Hola EcoAlaya, quiero pedir: ${p.nombre} (Bs ${p.precio}). Estoy en ${CONFIG.ciudad || 'Bolivia'}.`)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>Pedir</a>
+        </div>
+      </article>`;
+    $('#catalogo-sistemas').innerHTML = PRODUCTOS.filter((p) => p.tipo === 'sistema').map(tarjeta).join('');
+    $('#catalogo-nutrientes').innerHTML = PRODUCTOS.filter((p) => p.tipo === 'nutrientes').map(tarjeta).join('');
   }
 
   // ---------- Sistemas ----------
@@ -307,6 +340,7 @@
 
   iniciarPestanas();
   iniciarCalculadora();
+  renderCatalogo();
   iniciarSistemas();
   iniciarRegistro();
   iniciarPuntos();

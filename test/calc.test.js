@@ -2,22 +2,21 @@ const test = require('node:test');
 const assert = require('node:assert');
 const C = require('../js/calc.js');
 
-test('dosis La Molina para 20 L en crecimiento', () => {
+test('dosis EcoAlaya A + B + C para 20 L en crecimiento', () => {
   const d = C.calcularDosis({ litros: 20 });
-  assert.strictEqual(d.mlA, 100);
-  assert.strictEqual(d.mlB, 40);
+  assert.deepStrictEqual(d.ml, { A: 100, B: 100, C: 100 });
+  assert.deepStrictEqual(d.porLitro, { A: 5, B: 5, C: 5 });
 });
 
 test('plántula usa media dosis', () => {
   const d = C.calcularDosis({ litros: 10, etapa: 'plantula' });
-  assert.strictEqual(d.mlA, 25);
-  assert.strictEqual(d.mlB, 10);
+  assert.deepStrictEqual(d.ml, { A: 25, B: 25, C: 25 });
 });
 
 test('fórmula personalizada', () => {
-  const d = C.calcularDosis({ litros: 3, formula: 'personalizada', mlA: 4, mlB: 1.5 });
-  assert.strictEqual(d.mlA, 12);
-  assert.strictEqual(d.mlB, 4.5);
+  const d = C.calcularDosis({ litros: 3, formula: 'personalizada', personalizado: { A: 4, B: 1.5, C: 2 } });
+  assert.deepStrictEqual(d.ml, { A: 12, B: 4.5, C: 6 });
+  assert.throws(() => C.calcularDosis({ litros: 3, formula: 'personalizada', personalizado: { A: 4, B: 1.5 } }));
 });
 
 test('volumen inválido lanza error', () => {
@@ -41,4 +40,9 @@ test('evaluación fuera de rango da consejos', () => {
 
 test('saldo suma y resta movimientos', () => {
   assert.strictEqual(C.saldo([{ puntos: 50 }, { puntos: 100 }, { puntos: -150 }]), 0);
+});
+
+test('un juego de 200 L llena 10 tanques de 20 L', () => {
+  assert.strictEqual(C.llenadosPorJuego(200, 20), 10);
+  assert.strictEqual(C.llenadosPorJuego(1000, 30), 33);
 });
