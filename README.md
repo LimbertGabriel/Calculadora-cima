@@ -42,3 +42,22 @@ Abre `index.html` o publícalo con GitHub Pages. Para probar localmente:
 python3 -m http.server 8000   # y abre http://localhost:8000
 npm test                      # pruebas de la calculadora y del motor del juego
 ```
+
+## App Android (APK)
+
+**Descarga directa:** https://github.com/LimbertGabriel/Calculadora-cima/releases/download/apk-latest/EcoAlaya.apk
+
+Cada cambio subido a `main` (o a la rama de desarrollo) compila un APK nuevo en GitHub Actions
+(`.github/workflows/apk.yml`) y reemplaza el de ese enlace. El APK se instala encima del anterior
+sin perder el progreso.
+
+Para compilarlo en tu computadora (necesita Android Studio / Android SDK y JDK 21):
+
+```sh
+npm install
+npm run android:sync      # copia la app web al proyecto Android
+cd android && ./gradlew assembleDebug
+```
+
+La llave `android/app/ecoalaya-pruebas.keystore` es solo para APK de prueba y es pública.
+Para Play Store hay que crear una llave privada y no subirla al repositorio.
