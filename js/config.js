@@ -18,4 +18,43 @@ window.CIMA_CONFIG = {
     { id: 'medidor-ec', tipo: 'medidor', nombre: 'Medidor de EC', precio: null, descripcion: 'Mide cuántos nutrientes tiene el agua de tu tanque.' },
     { id: 'curso', tipo: 'curso', nombre: 'Curso de hidroponía para principiantes', precio: null, descripcion: 'Aprende a cultivar con Hidroponía CIMA, la mayor productora de lechugas hidropónicas de la región.' },
   ],
+
+  // Club CIMA: suscripción mensual. Pon el precio en bolivianos cuando lo definas (null = "Consultar precio").
+  club: {
+    pago: 'Pago mensual por QR o transferencia. Entregas en La Paz y El Alto.',
+    planes: [
+      {
+        id: 'club',
+        nombre: 'Club CIMA',
+        precio: null,
+        destacado: true,
+        beneficios: [
+          'Plantines frescos de CIMA cada mes',
+          'Nutrientes A + B + C según lo que consume tu sistema',
+          'Asesoría por WhatsApp cuando la necesites',
+        ],
+      },
+      {
+        id: 'plus',
+        nombre: 'Club CIMA Plus',
+        precio: null,
+        beneficios: [
+          'Todo lo del Club CIMA',
+          'Visita técnica cada 3 meses',
+          'Revisión de pH y EC con medidor profesional',
+          'Acceso al curso de hidroponía para principiantes',
+        ],
+      },
+      {
+        id: 'cuotas',
+        nombre: 'Tu sistema en cuotas',
+        precio: null,
+        beneficios: [
+          'Torre (Bs 650) o sistema NFT (Bs 850) pagado en cuotas mensuales',
+          'Club CIMA incluido mientras pagas tus cuotas',
+          'Instalación y primera siembra con nosotros',
+        ],
+      },
+    ],
+  },
 };

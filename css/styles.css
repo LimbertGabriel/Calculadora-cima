@@ -873,3 +873,39 @@ button .costo svg { color: inherit; }
 .consejo { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 14px; background: var(--sol-claro); font-size: 0.9rem; }
 .consejo svg { flex-shrink: 0; font-size: 1.3em; color: var(--sol-fuerte); margin-top: 1px; }
 .pasar-dia.es-noche { background: linear-gradient(135deg, #2c3e66, #1d2b47); color: #eef2ff; box-shadow: 0 6px 16px rgba(29, 43, 71, 0.35); }
+
+/* ============ Club CIMA ============ */
+.planes { display: grid; gap: 12px; }
+.plan {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 18px 16px 16px;
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  border: 2px solid transparent;
+}
+.plan-destacado { border-color: var(--lima-2); }
+.plan-etiqueta {
+  position: absolute;
+  top: -11px;
+  left: 16px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #cbd600, #8fb31c);
+  color: #1c2e1c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.plan h3 { font-size: 1.2rem; }
+.plan-precio { margin: 0; color: var(--suave); }
+.plan-precio b { font-family: var(--fuente-titulo); font-size: 1.7rem; color: var(--texto); }
+.plan-precio span { font-weight: 700; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.93rem; }
+.plan li { display: flex; gap: 8px; align-items: flex-start; }
+.plan li svg { flex-shrink: 0; margin-top: 3px; color: var(--hoja); }
+.plan li svg use { stroke-width: 2.6; }
+.plan .boton { margin-top: 4px; }

@@ -174,6 +174,24 @@
     $('#catalogo-medidores').innerHTML = de('medidor', 'curso');
   }
 
+  // ---------- Club CIMA ----------
+  function renderClub() {
+    const club = CONFIG.club;
+    if (!club) return;
+    $('#club-planes').innerHTML = club.planes.map((p) => {
+      const precio = p.precio == null ? null : `Bs ${p.precio}`;
+      const mensaje = `Hola Hidroponía CIMA, quiero unirme al ${p.nombre}${precio ? ` (${precio})` : ''}. Estoy en ${CONFIG.ciudad || 'Bolivia'}. ¿Cómo me inscribo?`;
+      return `<article class="plan ${p.destacado ? 'plan-destacado' : ''}">
+        ${p.destacado ? '<span class="plan-etiqueta">Recomendado</span>' : ''}
+        <h3>${escapar(p.nombre)}</h3>
+        <p class="plan-precio">${precio ? `<b>${precio}</b> al mes` : '<span>Consultar precio</span>'}</p>
+        <ul>${p.beneficios.map((b) => `<li><svg aria-hidden="true"><use href="#i-check"/></svg>${escapar(b)}</li>`).join('')}</ul>
+        <a class="boton ${p.destacado ? '' : 'secundario'}" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>Quiero ser socio</a>
+      </article>`;
+    }).join('');
+    $('#club-pago').textContent = club.pago || '';
+  }
+
   // ---------- Sistemas ----------
   function iniciarSistemas() {
     const form = $('#form-sistema');
@@ -356,6 +374,7 @@
   iniciarPestanas();
   iniciarCalculadora();
   renderCatalogo();
+  renderClub();
   iniciarSistemas();
   iniciarRegistro();
   iniciarPuntos();
