@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  :root { --verde:#1f6f43; --borde:#cfd6d2; --fondo:#f3f6f4; }
+  * { box-sizing:border-box; }
+  body { font-family:Arial, sans-serif; margin:0; background:var(--fondo); color:#222; }
+  header { background:var(--verde); color:#fff; padding:14px 16px; }
+  header h1 { margin:0; font-size:20px; }
+  main { max-width:720px; margin:0 auto; padding:12px 16px 40px; }
+  .card { background:#fff; border-radius:10px; padding:14px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  h2 { font-size:16px; margin:0 0 10px; color:var(--verde); }
+  .par { display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-bottom:8px; }
+  label { font-size:12px; color:#555; display:block; margin-bottom:3px; }
+  input, select, textarea { width:100%; padding:9px; border:1px solid var(--borde); border-radius:6px; font-size:15px; font-family:inherit; }
+  textarea { min-height:140px; font-size:13px; }
+  button, .btn { border:0; border-radius:6px; padding:10px 14px; font-size:15px; cursor:pointer;
+                 background:var(--verde); color:#fff; text-decoration:none; display:inline-block; }
+  button:disabled { opacity:.6; }
+  .sec { background:#e4e8e6; color:#222; }
+  .wa { background:#25d366; margin:6px 6px 0 0; }
+  .mini { padding:5px 9px; font-size:13px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .chip { padding:3px 10px; border-radius:12px; font-size:13px; font-weight:bold; }
+  .rojo { background:#f4cccc; color:#900; }
+  .amarillo { background:#fff2cc; color:#7f6000; }
+  .verde { background:#d9ead3; color:#274e13; }
+  .gris { background:#eee; color:#555; }
+  .item { border:1px solid var(--borde); border-left:6px solid #bbb; border-radius:8px; padding:8px 10px; margin-bottom:8px; }
+  .item.rojo { border-left-color:#cc0000; background:#fff; color:inherit; }
+  .item.amarillo { border-left-color:#e6b800; background:#fff; color:inherit; }
+  .item.verde { border-left-color:#38761d; background:#fff; color:inherit; }
+  .item .f1, .item .f2 { display:grid; grid-template-columns:1fr 2fr auto; gap:8px; align-items:center; }
+  .item .f2 { color:#555; font-size:14px; margin-top:3px; }
+  .acciones { display:flex; gap:6px; justify-content:flex-end; }
+  .contacto { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:6px 0; }
+  #aviso { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:#333; color:#fff;
+           padding:10px 16px; border-radius:8px; display:none; max-width:90%; }
+  .oculto { display:none; }
+  .muted { color:#777; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📦 Inventario</h1>
+  <div class="chips" id="resumen"></div>
+</header>
+
+<main>
+  <!-- Clave -->
+  <div class="card oculto" id="login">
+    <h2>🔒 Clave</h2>
+    <input id="pin" type="password" inputmode="numeric" placeholder="Escribe la clave del inventario">
+    <p><button onclick="entrar()">Entrar</button></p>
+  </div>
+
+  <div id="app" class="oculto">
+    <!-- Formulario: mismo orden que la planilla -->
+    <div class="card">
+      <h2 id="tituloForm">➕ Agregar producto</h2>
+      <form id="form" onsubmit="guardarProducto(event)">
+        <input type="hidden" id="fila">
+        <div class="par">
+          <div><label>Código</label><input id="codigo" required autocomplete="off"></div>
+          <div><label>Descripción</label><input id="desc" required autocomplete="off"></div>
+        </div>
+        <div class="par">
+          <div><label>Cantidad</label><input id="cant" type="number" min="0" step="any" inputmode="decimal"></div>
+          <div><label>Vencimiento</label><input id="fecha" type="date"></div>
+        </div>
+        <button id="btnGuardar">Guardar</button>
+        <button type="button" class="sec oculto" id="btnCancelar" onclick="limpiarForm()">Cancelar</button>
+      </form>
+    </div>
+
+    <!-- Lista -->
+    <div class="card">
+      <h2>📋 Productos</h2>
+      <div class="par">
+        <select id="filtro" onchange="pintarLista()">
+          <option value="">Todos</option>
+          <option value="Vencido">Vencidos</option>
+          <option value="Por vencer">Por vencer</option>
+          <option value="Vigente">Vigentes</option>
+        </select>
+        <input id="buscar" placeholder="🔍 Buscar código o descripción" oninput="pintarLista()">
+      </div>
+      <div id="lista"><p class="muted">Cargando…</p></div>
+    </div>
+
+    <!-- WhatsApp -->
+    <div class="card">
+      <h2>📲 Enviar por WhatsApp</h2>
+      <label>¿Qué enviar?</label>
+      <select id="tipoMsg" onchange="armarMensaje()">
+        <option value="alertas">Solo vencidos y por vencer</option>
+        <option value="todo">Inventario completo</option>
+      </select>
+      <p><label>Mensaje (puedes editarlo antes de enviar)</label>
+      <textarea id="mensaje"></textarea></p>
+      <div id="botonesWa"></div>
+      <p class="muted">Cada botón abre WhatsApp con el mensaje escrito; solo toca <b>Enviar</b>.</p>
+    </div>
+
+    <!-- Contactos -->
+    <div class="card">
+      <h2>👥 Contactos</h2>
+      <div id="contactos"></div>
+      <div class="par" style="margin-top:10px">
+        <input id="cNombre" placeholder="Nombre">
+        <input id="cTel" placeholder="Teléfono con código de país (ej. 59170000000)" inputmode="tel">
+      </div>
+      <button class="sec" onclick="agregarContacto()">Agregar contacto</button>
+    </div>
+  </div>
+</main>
+<div id="aviso"></div>
+
+<script>
+  let pin = leer('pin');
+  let datos = { items: [], contactos: [], diasAviso: 30 };
+  const CLASE = { 'Vencido': 'rojo', 'Por vencer': 'amarillo', 'Vigente': 'verde' };
+
+  function leer(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function guardar(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function fmt(f) { if (!f) return 'sin fecha'; const [y, m, d] = f.split('-'); return `${d}/${m}/${y}`; }
+
+  function aviso(txt) {
+    const a = $('aviso'); a.textContent = txt; a.style.display = 'block';
+    clearTimeout(aviso.t); aviso.t = setTimeout(() => a.style.display = 'none', 3000);
+  }
+
+  function llamar(fn, ...args) {
+    return new Promise((ok, err) =>
+      google.script.run.withSuccessHandler(ok).withFailureHandler(err)[fn](pin, ...args));
+  }
+
+  async function ejecutar(fn, ...args) {
+    try {
+      mostrar(await llamar(fn, ...args));
+      return true;
+    } catch (e) {
+      if (/Clave incorrecta/.test(e.message)) {
+        $('app').classList.add('oculto'); $('login').classList.remove('oculto');
+        if (pin) aviso('Clave incorrecta');
+      } else {
+        aviso('Error: ' + e.message);
+      }
+      return false;
+    }
+  }
+
+  function entrar() { pin = $('pin').value; guardar('pin', pin); ejecutar('getInventario'); }
+
+  function mostrar(res) {
+    datos = res;
+    $('login').classList.add('oculto'); $('app').classList.remove('oculto');
+    const cuenta = e => datos.items.filter(i => i.estado === e).length;
+    $('resumen').innerHTML =
+      `<span class="chip gris">${datos.items.length} productos</span>` +
+      `<span class="chip rojo">${cuenta('Vencido')} vencidos</span>` +
+      `<span class="chip amarillo">${cuenta('Por vencer')} por vencer</span>` +
+      `<span class="chip verde">${cuenta('Vigente')} vigentes</span>`;
+    pintarLista(); pintarContactos(); armarMensaje();
+  }
+
+  function pintarLista() {
+    const f = $('filtro').value, q = $('buscar').value.toLowerCase();
+    const items = datos.items
+      .filter(i => !f || i.estado === f)
+      .filter(i => !q || (i.codigo + ' ' + i.desc).toLowerCase().includes(q))
+      .sort((a, b) => (a.fecha || '9999') < (b.fecha || '9999') ? -1 : 1);
+
+    $('lista').innerHTML = items.length ? items.map(i => `
+      <div class="item ${CLASE[i.estado] || ''}">
+        <div class="f1"><b>${esc(i.codigo)}</b><b>${esc(i.desc)}</b>
+          <span class="chip ${CLASE[i.estado] || 'gris'}">${esc(i.estado || '—')}</span></div>
+        <div class="f2"><span>${esc(i.cant)} u.</span><span>${fmt(i.fecha)}${diasTxt(i)}</span>
+          <span class="acciones">
+            <button class="sec mini" onclick="editar(${i.fila})">✏️</button>
+            <button class="sec mini" onclick="borrar(${i.fila})">🗑️</button>
+          </span></div>
+      </div>`).join('') : '<p class="muted">No hay productos.</p>';
+  }
+
+  function diasTxt(i) {
+    if (i.dias == null) return '';
+    if (i.dias < 0) return ` (hace ${-i.dias} d)`;
+    return i.dias === 0 ? ' (vence hoy)' : ` (faltan ${i.dias} d)`;
+  }
+
+  async function guardarProducto(ev) {
+    ev.preventDefault();
+    const p = { fila: $('fila').value, codigo: $('codigo').value, desc: $('desc').value,
+                cant: $('cant').value, fecha: $('fecha').value };
+    $('btnGuardar').disabled = true;
+    if (await ejecutar('guardarProducto', p)) { aviso(p.fila ? 'Producto actualizado' : 'Producto agregado'); limpiarForm(); }
+    $('btnGuardar').disabled = false;
+  }
+
+  function editar(fila) {
+    const i = datos.items.find(x => x.fila === fila);
+    $('fila').value = i.fila; $('codigo').value = i.codigo; $('desc').value = i.desc;
+    $('cant').value = i.cant; $('fecha').value = i.fecha;
+    $('tituloForm').textContent = '✏️ Editar producto'; $('btnGuardar').textContent = 'Actualizar';
+    $('btnCancelar').classList.remove('oculto');
+    $('form').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function limpiarForm() {
+    $('form').reset(); $('fila').value = '';
+    $('tituloForm').textContent = '➕ Agregar producto'; $('btnGuardar').textContent = 'Guardar';
+    $('btnCancelar').classList.add('oculto');
+  }
+
+  async function borrar(fila) {
+    const i = datos.items.find(x => x.fila === fila);
+    if (!confirm(`¿Borrar ${i.codigo} - ${i.desc}?`)) return;
+    if (await ejecutar('borrarProducto', fila)) aviso('Producto borrado');
+  }
+
+  function armarMensaje() {
+    const linea = i => `• ${i.codigo} - ${i.desc} (${i.cant === '' ? '?' : i.cant} u.) ${fmt(i.fecha)}`;
+    const grupo = e => datos.items.filter(i => i.estado === e).sort((a, b) => a.dias - b.dias);
+    const hoy = new Date().toLocaleDateString('es');
+    let m = `📦 *INVENTARIO* - ${hoy}\n`;
+
+    if ($('tipoMsg').value === 'todo') {
+      m += '\n' + (datos.items.map(i => linea(i) + (i.estado ? ` [${i.estado}]` : '')).join('\n') || 'Sin productos');
+    } else {
+      const v = grupo('Vencido'), p = grupo('Por vencer');
+      if (v.length) m += `\n🔴 *VENCIDOS (${v.length})*\n` + v.map(linea).join('\n') + '\n';
+      if (p.length) m += `\n🟡 *POR VENCER (${p.length})*\n` + p.map(i => `${linea(i)} → ${i.dias === 0 ? 'vence hoy' : `faltan ${i.dias} día${i.dias === 1 ? '' : 's'}`}`).join('\n');
+      if (!v.length && !p.length) m += '\n✅ No hay productos vencidos ni por vencer.';
+    }
+    $('mensaje').value = m;
+    pintarBotonesWa();
+  }
+
+  function pintarBotonesWa() {
+    const txt = encodeURIComponent($('mensaje').value);
+    $('botonesWa').innerHTML =
+      datos.contactos.map(c =>
+        `<a class="btn wa" target="_blank" href="https://wa.me/${c.tel}?text=${txt}">Enviar a ${esc(c.nombre)}</a>`).join('') +
+      `<a class="btn wa" target="_blank" href="https://wa.me/?text=${txt}">Elegir contacto o grupo…</a>`;
+  }
+  $('mensaje').addEventListener('input', pintarBotonesWa);
+
+  function pintarContactos() {
+    $('contactos').innerHTML = datos.contactos.length ? datos.contactos.map(c => `
+      <div class="contacto"><span><b>${esc(c.nombre)}</b> <span class="muted">+${esc(c.tel)}</span></span>
+        <button class="sec mini" onclick="borrarContacto('${c.tel}')">🗑️</button></div>`).join('')
+      : '<p class="muted">Aún no hay contactos.</p>';
+  }
+
+  async function agregarContacto() {
+    if (await ejecutar('agregarContacto', $('cNombre').value, $('cTel').value)) {
+      $('cNombre').value = ''; $('cTel').value = ''; aviso('Contacto agregado');
+    }
+  }
+
+  async function borrarContacto(tel) {
+    if (confirm('¿Borrar este contacto?')) await ejecutar('borrarContacto', tel);
+  }
+
+  $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+  ejecutar('getInventario');
+</script>
+</body>
+</html>
