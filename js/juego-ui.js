@@ -32,7 +32,7 @@
   };
 
   const icono = (id) => `<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
-  const moneda = (n) => `<span class="costo">${icono('moneda')}${n}</span>`;
+  const gramosTexto = (g) => (g >= 1000 ? `${(g / 1000).toFixed(1).replace('.', ',')} kg` : `${g} g`);
 
   let juego = cargar();
 
@@ -87,12 +87,14 @@
     if (r && r.mensaje) mensajes.push(r.mensaje);
     const nivel = J.nivelJugador(juego);
     if (nivel > nivelAntes) {
-      const nuevos = Object.entries(J.PLANTAS).filter(([, p]) => p.nivel === nivel).map(([id]) => nombreCultivo(id));
+      const nuevos = [
+        ...Object.entries(J.PLANTAS).filter(([, p]) => p.nivel === nivel).map(([id]) => nombreCultivo(id)),
+        ...Object.keys(J.MEJORAS).filter((id) => J.nivelMejora(juego, id) === nivel).map((id) => J.MEJORAS[id].nombre.toLowerCase()),
+      ];
       mensajes.push(`¡Subiste a nivel ${nivel}!${nuevos.length ? ` Desbloqueaste: ${nuevos.join(', ')}.` : ''}`);
     }
     for (const logro of J.revisarLogros(juego)) {
-      App.otorgarPuntos(logro.puntos, `Logro del juego: ${logro.nombre}`);
-      mensajes.push(`Logro “${logro.nombre}”: +${logro.puntos} puntos CIMA.`);
+      mensajes.push(`¡Logro: ${logro.nombre}!`);
     }
     guardar();
     render();
@@ -353,7 +355,7 @@
     renderEscena.alto = alto;
   }
 
-  // Muestra una ganancia que sube desde una maceta (p. ej. "+35" monedas).
+  // Muestra la cosecha que sube desde una maceta (p. ej. "+250 g").
   function flotante(indice, texto) {
     if (sinMovimiento) return;
     const { x, y } = posicionMaceta(indice);
@@ -361,7 +363,7 @@
     el.className = 'flotante';
     el.style.left = `${(x / ESCENA.ancho) * 100}%`;
     el.style.top = `${((y - 40) / renderEscena.alto) * 100}%`;
-    el.innerHTML = `${icono('moneda')}${escapar(texto)}`;
+    el.innerHTML = `${icono('hoja')}${escapar(texto)}`;
     $('#flotantes').appendChild(el);
     setTimeout(() => el.remove(), 1500);
   }
@@ -478,12 +480,14 @@
   }
 
   function renderAcciones() {
-    $('#acciones').innerHTML = Object.entries(J.INSUMOS).map(([id, ins]) => `
-      <button type="button" class="accion" data-insumo="${id}" ${juego.monedas < ins.costo || (id === 'tratamiento' && !juego.plaga) ? 'disabled' : ''}>
+    $('#acciones').innerHTML = Object.entries(J.INSUMOS).map(([id, ins]) => {
+      const inactivo = (id === 'tratamiento' && !juego.plaga) || (id === 'agua' && juego.agua.nivel >= 99);
+      return `<button type="button" class="accion" data-insumo="${id}" ${inactivo ? 'disabled' : ''}>
         <span class="accion-icono">${icono(ICONO_INSUMO[id])}</span>
         <span>${escapar(ins.nombre)}</span>
-        ${ins.costo ? moneda(ins.costo) : '<span class="costo">Gratis</span>'}
-      </button>`).join('');
+        <small class="efecto">${escapar(ins.efecto)}</small>
+      </button>`;
+    }).join('');
   }
 
   function renderEstado() {
@@ -492,7 +496,7 @@
     $('#j-nivel').textContent = J.nivelJugador(juego);
     $('#j-anillo').style.setProperty('--p', xp);
     $('#j-xp-texto').textContent = `${xp}/100 XP`;
-    $('#j-monedas').textContent = juego.monedas;
+    $('#j-cosecha').textContent = gramosTexto(juego.stats.gramos);
     const noche = juego.fase === 'noche';
     $('#pasar-dia').innerHTML = `${icono(noche ? 'sol' : 'luna')}<span>${noche ? `Amanecer: día ${juego.dia + 1}` : 'Pasar a la noche'}</span>`;
     $('#pasar-dia').classList.toggle('es-noche', !noche);
@@ -503,19 +507,38 @@
   }
 
   function renderTienda() {
+    const nivelActual = J.nivelJugador(juego);
     $('#tienda').innerHTML = Object.entries(J.MEJORAS).map(([id, m]) => {
       const tiene = juego.mejoras[id] || 0;
-      const agotada = tiene >= m.max;
+      const nivel = J.nivelMejora(juego, id);
+      const completa = nivel == null;
+      const bloqueada = !completa && nivelActual < nivel;
+      const boton = completa
+        ? `<button type="button" disabled aria-label="Instalado">${icono('check')}</button>`
+        : bloqueada
+          ? `<button type="button" class="bloqueado" disabled aria-label="Se desbloquea en el nivel ${nivel}">${icono('candado')}Nivel ${nivel}</button>`
+          : `<button type="button" data-mejora="${id}">Instalar</button>`;
       return `<article class="mejora ${tiene ? 'instalada' : ''}">
         <span class="mejora-icono">${icono(ICONO_MEJORA[id])}</span>
         <div>
-          <h3>${escapar(m.nombre)}${tiene ? ` <span class="insignia-mini">${m.max > 1 ? `${tiene}/${m.max}` : 'Instalado'}</span>` : ''}</h3>
+          <h3>${escapar(m.nombre)}${tiene ? ` <span class="insignia-mini">${m.niveles.length > 1 ? `${tiene}/${m.niveles.length}` : 'Instalado'}</span>` : ''}</h3>
           <p>${escapar(m.descripcion)}</p>
           <a href="${enlaceWhatsApp(`Hola Hidroponía CIMA, jugando Mi Huerto CIMA me interesó ${PRODUCTO_REAL[id]}. ¿Me dan más información?`)}" target="_blank" rel="noopener">${icono('chat')}Pídelo de verdad a CIMA</a>
         </div>
-        <button type="button" data-mejora="${id}" ${agotada || juego.monedas < m.costo ? 'disabled' : ''} aria-label="${agotada ? 'Instalado' : `Comprar por ${m.costo} monedas`}">${agotada ? icono('check') : moneda(m.costo)}</button>
+        ${boton}
       </article>`;
     }).join('');
+  }
+
+  function renderProgreso() {
+    const s = juego.stats;
+    const nivel = J.nivelJugador(juego);
+    const siguiente = Object.entries(J.PLANTAS).find(([, p]) => p.nivel > nivel);
+    $('#progreso').innerHTML = `
+      <div class="dato"><b>${s.cosechas}</b><small>plantas cosechadas</small></div>
+      <div class="dato"><b>${gramosTexto(s.gramos)}</b><small>cosechado</small></div>
+      <div class="dato"><b>${s.mejorCalidad || 0} %</b><small>mejor calidad</small></div>
+      ${siguiente ? `<p class="siguiente">${icono('candado')}Próximo cultivo: <b>${nombreCultivo(siguiente[0])}</b> en el nivel ${siguiente[1].nivel}</p>` : `<p class="siguiente">${icono('check')}Tienes todos los cultivos desbloqueados.</p>`}`;
   }
 
   function renderLogros() {
@@ -525,7 +548,7 @@
         <span class="logro-icono">${icono(ok ? 'medalla' : 'candado')}</span>
         <b>${escapar(l.nombre)}</b>
         <small>${escapar(l.descripcion)}</small>
-        <span class="premio">${ok ? 'Ganado · ' : ''}+${l.puntos} pts</span>
+        ${ok ? `<span class="premio">${icono('check')}Logrado el día ${juego.logros[id]}</span>` : ''}
       </li>`;
     }).join('');
   }
@@ -538,6 +561,7 @@
     renderMedidores();
     renderAcciones();
     renderTienda();
+    renderProgreso();
     renderLogros();
   }
 
@@ -564,8 +588,8 @@
         const bloqueada = nivel < p.nivel;
         return `<li class="semilla ${bloqueada ? 'bloqueada' : ''}">
           <span class="semilla-dibujo">${dibujoCultivo(id)}</span>
-          <span><b>${c.nombre}</b><small>${bloqueada ? `Se desbloquea en el nivel ${p.nivel}` : `${p.dias} días · pH ${c.ph[0].toFixed(1)}–${c.ph[1].toFixed(1)} · EC ${c.ec[0].toFixed(1)}–${c.ec[1].toFixed(1)}<br>Se vende en ~${p.precio} monedas`}</small></span>
-          <button type="button" data-sembrar="${id}" ${bloqueada || juego.monedas < p.semilla ? 'disabled' : ''} aria-label="${bloqueada ? 'Bloqueado' : `Sembrar por ${p.semilla} monedas`}">${bloqueada ? icono('candado') : moneda(p.semilla)}</button>
+          <span><b>${c.nombre}</b><small>${bloqueada ? `Se desbloquea en el nivel ${p.nivel}` : `${p.dias} días · pH ${c.ph[0].toFixed(1)}–${c.ph[1].toFixed(1)} · EC ${c.ec[0].toFixed(1)}–${c.ec[1].toFixed(1)}<br>Rinde hasta ${gramosTexto(p.gramos)} por planta`}</small></span>
+          <button type="button" data-sembrar="${id}" ${bloqueada ? 'disabled' : ''} aria-label="${bloqueada ? `Bloqueado hasta el nivel ${p.nivel}` : `Sembrar ${c.nombre.toLowerCase()}`}">${bloqueada ? icono('candado') : 'Sembrar'}</button>
         </li>`;
       }).join('')}</ul>`;
     } else {
@@ -624,7 +648,7 @@
       } else if ('cosechar' in boton.dataset) {
         const r = accion(() => J.cosechar(juego, i));
         hojaEl.close();
-        if (r.ok) flotante(i, `+${r.monedas}`);
+        if (r.ok) flotante(i, `+${gramosTexto(r.gramos)}`);
       } else if ('retirar' in boton.dataset) {
         const m = juego.macetas[i];
         if (m && !m.muerta && !(await App.confirmar('¿Arrancar esta planta? Perderás la semilla.', 'Arrancar'))) return;
@@ -640,7 +664,7 @@
 
     $('#tienda').addEventListener('click', (ev) => {
       const b = ev.target.closest('[data-mejora]');
-      if (b) accion(() => J.comprarMejora(juego, b.dataset.mejora));
+      if (b) accion(() => J.instalarMejora(juego, b.dataset.mejora));
     });
 
     $('#pasar-dia').addEventListener('click', pasarDia);
@@ -657,10 +681,10 @@
     });
 
     $('#reiniciar').addEventListener('click', async () => {
-      if (!(await App.confirmar('¿Reiniciar el juego? Perderás tu huerto y monedas. Tus puntos CIMA y logros se conservan.', 'Reiniciar'))) return;
+      if (!(await App.confirmar('¿Reiniciar el juego? Empezarás de nuevo en el día 1 con el huerto vacío. Tus logros se conservan.', 'Reiniciar'))) return;
       const logros = juego.logros;
       juego = J.nuevoJuego(Date.now(), juego.region);
-      juego.logros = logros; // evita volver a cobrar puntos por los mismos logros
+      juego.logros = logros;
       guardar();
       render();
     });

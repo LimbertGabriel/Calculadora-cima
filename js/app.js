@@ -1,25 +1,31 @@
-// Interfaz de Hidroponía CIMA: calculadora, sistemas, registro de cultivo y puntos.
+// Interfaz de Hidroponía CIMA: calculadora, sistemas, registro de cultivo y Club CIMA.
 (function () {
   const C = window.EcoCalc;
   const CONFIG = window.CIMA_CONFIG || {};
   const PRODUCTOS = CONFIG.productos || [];
   const CLAVE = 'ecoalaya:v1';
   const $ = (sel) => document.querySelector(sel);
+  const icono = (nombre) => `<svg aria-hidden="true"><use href="#i-${nombre}"/></svg>`;
 
   let estado = cargar();
 
   function vacio() {
-    return { sistemas: [], mediciones: [], cosechas: [], movimientos: [] };
+    return { sistemas: [], mediciones: [], cosechas: [] };
+  }
+
+  // Completa lo que falte y quita datos de versiones anteriores (puntos y canjes).
+  function normalizar(datos) {
+    const d = { ...vacio(), ...datos };
+    delete d.movimientos;
+    for (const k of ['sistemas', 'mediciones', 'cosechas']) if (!Array.isArray(d[k])) d[k] = [];
+    for (const sis of d.sistemas) sis.cultivo = C.cultivoActual(sis.cultivo);
+    return d;
   }
 
   function cargar() {
     try {
       const guardado = JSON.parse(localStorage.getItem(CLAVE));
-      if (!guardado) return vacio();
-      const datos = { ...vacio(), ...guardado };
-      // Cultivos que ya no se ofrecen pasan a su reemplazo.
-      for (const sis of datos.sistemas) sis.cultivo = C.cultivoActual(sis.cultivo);
-      return datos;
+      return guardado ? normalizar(guardado) : vacio();
     } catch {
       return vacio();
     }
@@ -37,18 +43,24 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   }
 
-  function hoy() {
-    return new Date().toISOString().slice(0, 10);
+  const hoy = () => C.fechaLocal();
+
+  // "2026-10-15" → "15 oct." (con año si no es el actual).
+  function fechaCorta(fecha) {
+    const [a, m, d] = fecha.split('-').map(Number);
+    const opciones = { day: 'numeric', month: 'short' };
+    if (a !== new Date().getFullYear()) opciones.year = 'numeric';
+    return new Date(a, m - 1, d).toLocaleDateString('es-BO', opciones);
+  }
+
+  function gramosTexto(g) {
+    return g >= 1000 ? `${(g / 1000).toFixed(g >= 10000 ? 0 : 1).replace('.', ',')} kg` : `${g} g`;
   }
 
   function escapar(texto) {
     const div = document.createElement('div');
     div.textContent = texto;
     return div.innerHTML;
-  }
-
-  function sumarPuntos(puntos, motivo) {
-    estado.movimientos.push({ id: id(), fecha: hoy(), puntos, motivo });
   }
 
   function aviso(mensaje) {
@@ -79,6 +91,14 @@
 
   function sistemaPorId(sid) {
     return estado.sistemas.find((s) => s.id === sid);
+  }
+
+  // Las fechas no pueden ser futuras.
+  function fijarFechas(form) {
+    form.querySelectorAll('input[type="date"]').forEach((input) => {
+      input.max = hoy();
+      if (!input.value) input.value = hoy();
+    });
   }
 
   // ---------- Pestañas ----------
@@ -142,7 +162,7 @@
     });
   }
 
-  // ---------- Catálogo ----------
+  // ---------- Catálogo y contacto ----------
   function enlaceWhatsApp(texto) {
     return `https://wa.me/${CONFIG.whatsapp || ''}?text=${encodeURIComponent(texto)}`;
   }
@@ -156,7 +176,7 @@
         ? `Hola Hidroponía CIMA, quiero pedir: ${p.nombre} (${precio}). Estoy en ${CONFIG.ciudad || 'Bolivia'}.`
         : `Hola Hidroponía CIMA, quiero información y precio de: ${p.nombre}. Estoy en ${CONFIG.ciudad || 'Bolivia'}.`;
       return `<article class="producto producto-${p.tipo}">
-        <span class="producto-icono"><svg aria-hidden="true"><use href="#i-${ICONO_PRODUCTO[p.tipo] || 'hoja'}"/></svg></span>
+        <span class="producto-icono">${icono(ICONO_PRODUCTO[p.tipo] || 'hoja')}</span>
         <div class="producto-texto">
           <h3>${escapar(p.nombre)}</h3>
           ${p.descripcion ? `<p>${escapar(p.descripcion)}</p>` : ''}
@@ -164,7 +184,7 @@
         </div>
         <div class="producto-compra">
           ${precio ? `<b class="precio">${precio}</b>` : '<span class="precio-consulta">Consultar precio</span>'}
-          <a class="boton" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>${precio ? 'Pedir' : 'Consultar'}</a>
+          <a class="boton" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener">${icono('chat')}${precio ? 'Pedir' : 'Consultar'}</a>
         </div>
       </article>`;
     };
@@ -172,6 +192,22 @@
     $('#catalogo-sistemas').innerHTML = de('sistema');
     $('#catalogo-nutrientes').innerHTML = de('nutrientes');
     $('#catalogo-medidores').innerHTML = de('medidor', 'curso');
+  }
+
+  function renderContacto() {
+    $('#contacto-cabecera').href = enlaceWhatsApp('Hola Hidroponía CIMA, tengo una consulta sobre mi cultivo.');
+    const numero = CONFIG.whatsapp || '';
+    const telefono = numero.startsWith('591') ? `+591 ${numero.slice(3)}` : numero;
+    const filas = [
+      numero && { icono: 'chat', titulo: 'WhatsApp', texto: telefono, href: enlaceWhatsApp('Hola Hidroponía CIMA, tengo una consulta.') },
+      CONFIG.correo && { icono: 'correo', titulo: 'Correo', texto: CONFIG.correo, href: `mailto:${CONFIG.correo}` },
+      CONFIG.web && { icono: 'web', titulo: 'Página web', texto: CONFIG.web.replace(/^https?:\/\/(www\.)?/, ''), href: CONFIG.web },
+    ].filter(Boolean);
+    $('#contacto').innerHTML = filas.map((f) => `
+      <a class="contacto-fila" href="${f.href}" target="_blank" rel="noopener">
+        <span class="contacto-icono">${icono(f.icono)}</span>
+        <span><small>${f.titulo}</small><b>${escapar(f.texto)}</b></span>
+      </a>`).join('') + (CONFIG.ciudad ? `<p class="contacto-nota">Entregas en ${escapar(CONFIG.ciudad)}.</p>` : '');
   }
 
   // ---------- Club CIMA ----------
@@ -185,8 +221,8 @@
         ${p.destacado ? '<span class="plan-etiqueta">Recomendado</span>' : ''}
         <h3>${escapar(p.nombre)}</h3>
         <p class="plan-precio">${precio ? `<b>${precio}</b> al mes` : '<span>Consultar precio</span>'}</p>
-        <ul>${p.beneficios.map((b) => `<li><svg aria-hidden="true"><use href="#i-check"/></svg>${escapar(b)}</li>`).join('')}</ul>
-        <a class="boton ${p.destacado ? '' : 'secundario'}" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg>Quiero ser socio</a>
+        <ul>${p.beneficios.map((b) => `<li>${icono('check')}${escapar(b)}</li>`).join('')}</ul>
+        <a class="boton ${p.destacado ? '' : 'secundario'}" href="${enlaceWhatsApp(mensaje)}" target="_blank" rel="noopener">${icono('chat')}Quiero ser socio</a>
       </article>`;
     }).join('');
     $('#club-pago').textContent = club.pago || '';
@@ -196,7 +232,7 @@
   function iniciarSistemas() {
     const form = $('#form-sistema');
     opciones(form.cultivo, C.CULTIVOS);
-    form.inicio.value = hoy();
+    fijarFechas(form);
     form.addEventListener('submit', (ev) => {
       ev.preventDefault();
       estado.sistemas.push({
@@ -207,32 +243,65 @@
         litros: Number(form.litros.value),
         inicio: form.inicio.value,
       });
-      sumarPuntos(C.PUNTOS.sistema, `Registro del sistema "${form.nombre.value.trim()}"`);
       guardar();
       form.reset();
-      form.inicio.value = hoy();
-      aviso(`Sistema registrado: +${C.PUNTOS.sistema} puntos`);
+      fijarFechas(form);
+      aviso('Sistema registrado. Ya puedes anotar sus mediciones en Registro.');
       render();
     });
+
+    $('#lista-sistemas').addEventListener('click', async (ev) => {
+      const boton = ev.target.closest('[data-borrar-sistema]');
+      if (!boton) return;
+      const s = sistemaPorId(boton.dataset.borrarSistema);
+      if (!s) return;
+      if (!(await confirmar(`¿Borrar "${s.nombre}"? También se borrarán sus mediciones y cosechas.`, 'Borrar'))) return;
+      estado.sistemas = estado.sistemas.filter((x) => x.id !== s.id);
+      estado.mediciones = estado.mediciones.filter((m) => m.sistema !== s.id);
+      estado.cosechas = estado.cosechas.filter((c) => c.sistema !== s.id);
+      guardar();
+      aviso('Sistema borrado.');
+      render();
+    });
+  }
+
+  function ultimaMedicion(sid) {
+    return estado.mediciones
+      .filter((m) => m.sistema === sid)
+      .sort((a, b) => a.fecha.localeCompare(b.fecha))
+      .at(-1);
   }
 
   function renderSistemas() {
     const lista = $('#lista-sistemas');
     if (!estado.sistemas.length) {
-      lista.innerHTML = '<p class="vacio tarjeta" style="padding:16px;margin:0">Aún no registras ningún sistema. Registra el tuyo abajo para seguir su cosecha.</p>';
+      lista.innerHTML = '<p class="vacio tarjeta" style="padding:16px;margin:0">Aún no registras ningún sistema. Registra el tuyo abajo para seguir su avance hasta la cosecha.</p>';
       return;
     }
     lista.innerHTML = estado.sistemas.map((s) => {
       const c = C.CULTIVOS[s.cultivo];
-      const dias = Math.floor((Date.now() - new Date(s.inicio)) / 86400000);
-      const ultima = estado.mediciones.filter((m) => m.sistema === s.id).at(-1);
-      const avance = Math.min(100, Math.round((Math.max(dias, 0) / c.dias) * 100));
+      const dias = Math.max(0, C.diasEntre(s.inicio, hoy()));
+      const avance = Math.min(100, Math.round((dias / c.dias) * 100));
+      const listo = dias >= c.dias;
+      const ultima = ultimaMedicion(s.id);
+      const evaluacion = ultima && C.evaluarMedicion(s.cultivo, ultima);
+      const cosechado = estado.cosechas.filter((x) => x.sistema === s.id).reduce((t, x) => t + x.gramos, 0);
+      const medicion = ultima
+        ? `<span class="chip ${evaluacion.enRango ? 'chip-ok' : 'chip-alerta'}">${icono(evaluacion.enRango ? 'check' : 'alerta')}pH ${ultima.ph} · EC ${ultima.ec}</span><small>${fechaCorta(ultima.fecha)}</small>`
+        : '<span class="chip">Sin mediciones todavía</span>';
       return `<article class="tarjeta sistema">
-        <div class="sistema-cab"><h3>${escapar(s.nombre)}</h3><b>${avance} %</b></div>
+        <div class="sistema-cab">
+          <h3>${escapar(s.nombre)}</h3>
+          <button type="button" class="borrar" data-borrar-sistema="${s.id}" aria-label="Borrar el sistema ${escapar(s.nombre)}">${icono('basura')}</button>
+        </div>
         <p>${escapar(s.tipo)} · ${escapar(c.nombre)} · ${s.litros} L</p>
-        <div class="progreso" role="progressbar" aria-valuenow="${avance}" aria-valuemin="0" aria-valuemax="100"><span style="width:${avance}%"></span></div>
-        <p>Día ${Math.max(dias, 0)} de ~${c.dias} hasta la cosecha</p>
-        <p>${ultima ? `Última medición: pH ${ultima.ph} · EC ${ultima.ec}` : 'Sin mediciones todavía'}</p>
+        <div class="progreso" role="progressbar" aria-label="Avance hasta la cosecha" aria-valuenow="${avance}" aria-valuemin="0" aria-valuemax="100"><span style="width:${avance}%"></span></div>
+        <div class="sistema-fechas">
+          <span>Día ${dias} de ~${c.dias}</span>
+          <span class="${listo ? 'listo-cosecha' : ''}">${icono('calendario')}${listo ? '¡Listo para cosechar!' : `Cosecha aprox. ${fechaCorta(C.sumarDias(s.inicio, c.dias))}`}</span>
+        </div>
+        <div class="sistema-medicion">${medicion}</div>
+        ${cosechado ? `<p>Cosechado: <b>${gramosTexto(cosechado)}</b></p>` : ''}
       </article>`;
     }).join('');
   }
@@ -240,36 +309,48 @@
   // ---------- Registro (mediciones y cosechas) ----------
   function iniciarRegistro() {
     const fm = $('#form-medicion');
-    fm.fecha.value = hoy();
+    fijarFechas(fm);
     fm.addEventListener('submit', (ev) => {
       ev.preventDefault();
       const s = sistemaPorId(fm.sistema.value);
-      if (!s) return aviso('Primero registra un sistema.');
+      if (!s) return aviso('Primero registra un sistema en la pestaña Sistemas.');
       const medicion = { id: id(), sistema: s.id, fecha: fm.fecha.value, ph: Number(fm.ph.value), ec: Number(fm.ec.value), temp: fm.temp.value ? Number(fm.temp.value) : null };
       const evaluacion = C.evaluarMedicion(s.cultivo, medicion);
-      const puntos = C.puntosPorMedicion(evaluacion);
       estado.mediciones.push(medicion);
-      sumarPuntos(puntos, `Medición en "${s.nombre}"${evaluacion.enRango ? ' (en rango)' : ''}`);
       guardar();
-      $('#medicion-resultado').innerHTML = evaluacion.enRango
+      const consejoTemp = medicion.temp != null && (medicion.temp > 26 || medicion.temp < 16)
+        ? `<li>Agua ${medicion.temp > 26 ? 'caliente' : 'fría'} (${medicion.temp} °C): lo ideal es 16–26 °C. ${medicion.temp > 26 ? 'Da sombra al tanque o agrega agua fresca.' : 'Protege el tanque del frío por la noche.'}</li>`
+        : '';
+      $('#medicion-resultado').innerHTML = evaluacion.enRango && !consejoTemp
         ? '<p class="ok">¡Todo en rango! Tu solución está perfecta.</p>'
-        : `<ul class="consejos">${evaluacion.consejos.map((t) => `<li>${escapar(t)}</li>`).join('')}</ul>`;
+        : `<ul class="consejos">${evaluacion.consejos.map((t) => `<li>${escapar(t)}</li>`).join('')}${consejoTemp}</ul>`;
       fm.ph.value = fm.ec.value = fm.temp.value = '';
-      aviso(`Medición guardada: +${puntos} puntos`);
+      aviso('Medición guardada.');
       render();
     });
 
     const fc = $('#form-cosecha');
-    fc.fecha.value = hoy();
+    fijarFechas(fc);
     fc.addEventListener('submit', (ev) => {
       ev.preventDefault();
       const s = sistemaPorId(fc.sistema.value);
-      if (!s) return aviso('Primero registra un sistema.');
+      if (!s) return aviso('Primero registra un sistema en la pestaña Sistemas.');
       estado.cosechas.push({ id: id(), sistema: s.id, fecha: fc.fecha.value, gramos: Number(fc.gramos.value), nota: fc.nota.value.trim() });
-      sumarPuntos(C.PUNTOS.cosecha, `Cosecha en "${s.nombre}"`);
       guardar();
       fc.gramos.value = fc.nota.value = '';
-      aviso(`¡Felicidades por tu cosecha! +${C.PUNTOS.cosecha} puntos`);
+      aviso('¡Felicidades por tu cosecha!');
+      render();
+    });
+
+    $('#historial').addEventListener('click', async (ev) => {
+      const boton = ev.target.closest('[data-borrar]');
+      if (!boton) return;
+      const [tipo, rid] = boton.dataset.borrar.split(':');
+      const lista = tipo === 'medicion' ? 'mediciones' : 'cosechas';
+      if (!(await confirmar(`¿Borrar este registro de ${tipo === 'medicion' ? 'medición' : 'cosecha'}?`, 'Borrar'))) return;
+      estado[lista] = estado[lista].filter((x) => x.id !== rid);
+      guardar();
+      aviso('Registro borrado.');
       render();
     });
   }
@@ -277,65 +358,44 @@
   function renderRegistro() {
     const opts = estado.sistemas.map((s) => `<option value="${s.id}">${escapar(s.nombre)}</option>`).join('');
     ['#form-medicion', '#form-cosecha'].forEach((sel) => {
-      const select = $(sel).sistema;
+      const form = $(sel);
+      const select = form.sistema;
       const actual = select.value;
       select.innerHTML = opts || '<option value="">Registra un sistema primero</option>';
-      if (actual) select.value = actual;
+      if (actual && sistemaPorId(actual)) select.value = actual;
+      form.querySelector('[type="submit"]').disabled = !estado.sistemas.length;
     });
+
+    const total = estado.cosechas.reduce((t, c) => t + c.gramos, 0);
+    $('#resumen-registro').innerHTML = estado.mediciones.length || estado.cosechas.length
+      ? `<div class="dato"><b>${estado.mediciones.length}</b><small>mediciones</small></div>
+         <div class="dato"><b>${estado.cosechas.length}</b><small>cosechas</small></div>
+         <div class="dato"><b>${gramosTexto(total)}</b><small>cosechado</small></div>`
+      : '';
 
     const nombre = (sid) => escapar(sistemaPorId(sid)?.nombre ?? '—');
     const filas = [
-      ...estado.mediciones.map((m) => ({ fecha: m.fecha, texto: `${nombre(m.sistema)}: pH ${m.ph} · EC ${m.ec}${m.temp != null ? ` · ${m.temp} °C` : ''}` })),
-      ...estado.cosechas.map((c) => ({ fecha: c.fecha, texto: `${nombre(c.sistema)}: cosecha de ${c.gramos} g${c.nota ? ` — ${escapar(c.nota)}` : ''}` })),
-    ].sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 15);
+      ...estado.mediciones.map((m) => {
+        const s = sistemaPorId(m.sistema);
+        const ok = s && C.evaluarMedicion(s.cultivo, m).enRango;
+        return { fecha: m.fecha, clave: `medicion:${m.id}`, icono: ok ? 'check' : 'alerta', clase: ok ? 'pos' : 'aviso-texto', texto: `${nombre(m.sistema)}: pH ${m.ph} · EC ${m.ec}${m.temp != null ? ` · ${m.temp} °C` : ''}` };
+      }),
+      ...estado.cosechas.map((c) => ({ fecha: c.fecha, clave: `cosecha:${c.id}`, icono: 'balanza', clase: 'pos', texto: `${nombre(c.sistema)}: cosecha de ${gramosTexto(c.gramos)}${c.nota ? ` — ${escapar(c.nota)}` : ''}` })),
+    ].sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 30);
     $('#historial').innerHTML = filas.length
-      ? filas.map((f) => `<li><time>${f.fecha}</time><span class="texto">${f.texto}</span></li>`).join('')
-      : '<li class="vacio">Sin registros todavía.</li>';
+      ? filas.map((f) => `<li><time>${fechaCorta(f.fecha)}</time><span class="historial-icono ${f.clase}">${icono(f.icono)}</span><span class="texto">${f.texto}</span><button type="button" class="borrar" data-borrar="${f.clave}" aria-label="Borrar registro">${icono('basura')}</button></li>`).join('')
+      : '<li class="vacio">Sin registros todavía. Mide el pH y la EC una vez por semana.</li>';
   }
 
-  // ---------- Puntos ----------
-  function renderPuntos() {
-    const total = C.saldo(estado.movimientos);
-    $('#saldo').textContent = total;
-    $('#saldo-cabecera').textContent = total;
-    const cosechado = estado.cosechas.reduce((t, c) => t + c.gramos, 0);
-    $('#total-cosecha').textContent = (cosechado / 1000).toFixed(2);
-
-    $('#recompensas').innerHTML = C.RECOMPENSAS.map((r) => {
-      const avance = Math.min(100, Math.round((total / r.costo) * 100));
-      return `<li class="recompensa">
-        <span class="recompensa-icono"><svg aria-hidden="true"><use href="#i-regalo"/></svg></span>
-        <span><b>${escapar(r.nombre)}</b><small>${total >= r.costo ? `${r.costo} pts · ¡ya puedes canjearlo!` : `${total} de ${r.costo} pts`}</small>
-          <span class="progreso"><span style="width:${avance}%"></span></span></span>
-        <button type="button" data-canje="${r.id}" ${total < r.costo ? 'disabled' : ''}>Canjear</button>
-      </li>`;
-    }).join('');
-
-    $('#movimientos').innerHTML = estado.movimientos.slice().reverse().slice(0, 20)
-      .map((m) => `<li><time>${m.fecha}</time><span class="texto">${escapar(m.motivo)}</span><b class="${m.puntos < 0 ? 'neg' : 'pos'}">${m.puntos > 0 ? '+' : ''}${m.puntos}</b></li>`)
-      .join('') || '<li class="vacio">Aún no tienes movimientos.</li>';
-  }
-
-  function iniciarPuntos() {
-    $('#recompensas').addEventListener('click', async (ev) => {
-      const boton = ev.target.closest('[data-canje]');
-      if (!boton) return;
-      const r = C.RECOMPENSAS.find((x) => x.id === boton.dataset.canje);
-      if (C.saldo(estado.movimientos) < r.costo) return;
-      if (!(await confirmar(`¿Canjear ${r.costo} puntos por "${r.nombre}"?`, 'Canjear'))) return;
-      sumarPuntos(-r.costo, `Canje: ${r.nombre}`);
-      guardar();
-      aviso('Canje registrado. Muestra este movimiento a Hidroponía CIMA para recibir tu premio.');
-      render();
-    });
-
+  // ---------- Respaldo ----------
+  function iniciarRespaldo() {
     $('#exportar').addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `cima-respaldo-${hoy()}.json`;
       a.click();
-      URL.revokeObjectURL(a.href);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     });
 
     $('#importar').addEventListener('change', async (ev) => {
@@ -343,10 +403,11 @@
       if (!archivo) return;
       try {
         const datos = JSON.parse(await archivo.text());
-        estado = { ...vacio(), ...datos };
+        if (!datos || typeof datos !== 'object') throw new Error('vacío');
+        estado = normalizar(datos);
         guardar();
         render();
-        aviso('Respaldo importado.');
+        aviso('Respaldo cargado.');
       } catch {
         aviso('El archivo no es un respaldo válido.');
       }
@@ -357,26 +418,18 @@
   function render() {
     renderSistemas();
     renderRegistro();
-    renderPuntos();
   }
 
-  // Puente para el juego: sus logros suman puntos CIMA reales.
-  window.EcoApp = {
-    aviso,
-    confirmar,
-    otorgarPuntos(puntos, motivo) {
-      sumarPuntos(puntos, motivo);
-      guardar();
-      render();
-    },
-  };
+  // Puente para el juego.
+  window.EcoApp = { aviso, confirmar, enlaceWhatsApp };
 
   iniciarPestanas();
   iniciarCalculadora();
   renderCatalogo();
   renderClub();
+  renderContacto();
   iniciarSistemas();
   iniciarRegistro();
-  iniciarPuntos();
+  iniciarRespaldo();
   render();
 })();

@@ -1,4 +1,4 @@
-// Lógica pura de Hidroponía CIMA: dosis de solución nutritiva, rangos por cultivo y puntos.
+// Lógica pura de Hidroponía CIMA: dosis de solución nutritiva, rangos por cultivo y fechas.
 // Sin dependencias del navegador para poder probarla con Node.
 
 (function (root) {
@@ -29,20 +29,6 @@
     plantula: { nombre: 'Plántula / almácigo', factor: 0.5 },
     crecimiento: { nombre: 'Crecimiento', factor: 1 },
   };
-
-  const PUNTOS = {
-    sistema: 50,
-    medicion: 10,
-    medicionEnRango: 5,
-    cosecha: 100,
-  };
-
-  const RECOMPENSAS = [
-    { id: 'semillas', nombre: 'Sobre de semillas', costo: 150 },
-    { id: 'nutrientes', nombre: 'Juego de nutrientes A + B + C para 200 L', costo: 400 },
-    { id: 'phmetro', nombre: 'Kit medidor de pH', costo: 800 },
-    { id: 'descuento', nombre: '15 % de descuento en un módulo', costo: 1200 },
-  ];
 
   // Cultivos que ya no se ofrecen y su reemplazo (para datos guardados antes).
   const CULTIVO_ANTERIOR = { albahaca: 'acelga', espinaca: 'kale' };
@@ -101,17 +87,31 @@
     return resultado;
   }
 
-  function puntosPorMedicion(evaluacion) {
-    return PUNTOS.medicion + (evaluacion.enRango ? PUNTOS.medicionEnRango : 0);
+  // Fecha de hoy (o de `fecha`) en hora local como "AAAA-MM-DD".
+  // toISOString usa hora UTC: en Bolivia, después de las 20:00 daría la fecha de mañana.
+  function fechaLocal(fecha = new Date()) {
+    const d = new Date(fecha);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  function saldo(movimientos) {
-    return movimientos.reduce((total, m) => total + m.puntos, 0);
+  // Días enteros entre dos fechas "AAAA-MM-DD" (sin desfases por zona horaria).
+  function diasEntre(desde, hasta) {
+    const utc = (s) => {
+      const [a, m, d] = s.split('-').map(Number);
+      return Date.UTC(a, m - 1, d);
+    };
+    return Math.round((utc(hasta) - utc(desde)) / 86400000);
+  }
+
+  // Suma `dias` a una fecha "AAAA-MM-DD".
+  function sumarDias(fecha, dias) {
+    const [a, m, d] = fecha.split('-').map(Number);
+    return fechaLocal(new Date(a, m - 1, d + dias));
   }
 
   const api = {
-    PARTES, FORMULAS, SOLUCION_CIMA, CULTIVOS, ETAPAS, PUNTOS, RECOMPENSAS,
-    calcularDosis, llenadosPorJuego, cultivoActual, evaluarMedicion, puntosPorMedicion, saldo,
+    PARTES, FORMULAS, SOLUCION_CIMA, CULTIVOS, ETAPAS,
+    calcularDosis, llenadosPorJuego, cultivoActual, evaluarMedicion, fechaLocal, diasEntre, sumarDias,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

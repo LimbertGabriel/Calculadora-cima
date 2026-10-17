@@ -33,15 +33,29 @@ test('juego nuevo empieza con agua del grifo y macetas vacías', () => {
   assert.ok(J.diagnostico(j).some((p) => p.tipo === 'phAlto'));
 });
 
-test('insumos modifican el agua y cobran monedas', () => {
+test('insumos modifican el agua y el juego no usa monedas', () => {
   const j = J.nuevoJuego(1);
-  const antes = j.monedas;
+  assert.strictEqual(j.monedas, undefined);
   assert.ok(J.usarInsumo(j, 'nutrientes').ok);
   assert.strictEqual(j.agua.ec, 0.5);
   assert.ok(J.usarInsumo(j, 'phMenos').ok);
   assert.strictEqual(j.agua.ph, 6.9);
-  assert.strictEqual(j.monedas, antes - 3);
   assert.strictEqual(J.usarInsumo(j, 'tratamiento').ok, false);
+  // Se puede usar cualquier insumo las veces que haga falta.
+  for (let i = 0; i < 50; i++) assert.ok(J.usarInsumo(j, 'phMas').ok);
+});
+
+test('cosechar da gramos y calidad, no monedas', () => {
+  const j = J.nuevoJuego(1);
+  J.sembrar(j, 0, 'lechuga');
+  Object.assign(j.macetas[0], { crecimiento: 100, dias: 10, sumaSalud: 1000 });
+  const r = J.cosechar(j, 0);
+  assert.ok(r.ok);
+  assert.strictEqual(r.gramos, 250);
+  assert.strictEqual(r.calidad, 100);
+  assert.strictEqual(r.monedas, undefined);
+  assert.strictEqual(j.stats.mejorCalidad, 100);
+  assert.ok(J.revisarLogros(j).some((l) => l.id === 'calidad'));
 });
 
 test('la dosis real enseña los mL de la calculadora', () => {
@@ -73,14 +87,22 @@ test('todos los cultivos comparten la solución CIMA', () => {
   assert.deepStrictEqual([r.ph, r.ec], [[5.5, 6.5], [1.0, 1.8]]);
 });
 
-test('módulo extra agrega 3 macetas', () => {
+test('las mejoras se desbloquean por nivel', () => {
   const j = J.nuevoJuego(1);
-  j.monedas = 1000;
-  assert.ok(J.comprarMejora(j, 'modulo').ok);
+  assert.strictEqual(J.instalarMejora(j, 'modulo').ok, false);
+  j.xp = 100; // nivel 2
+  assert.ok(J.instalarMejora(j, 'modulo').ok);
   assert.strictEqual(j.macetas.length, 9);
+  assert.strictEqual(J.nivelMejora(j, 'modulo'), 5);
+  assert.strictEqual(J.instalarMejora(j, 'modulo').ok, false);
+  j.xp = 400; // nivel 5
+  assert.ok(J.instalarMejora(j, 'modulo').ok);
+  assert.strictEqual(j.macetas.length, 12);
+  assert.strictEqual(J.nivelMejora(j, 'modulo'), null);
+  assert.strictEqual(J.instalarMejora(j, 'modulo').ok, false);
 });
 
-test('un jugador cuidadoso cosecha, gana monedas y logros', () => {
+test('un jugador cuidadoso cosecha, sube de nivel y gana logros', () => {
   for (const semilla of [1, 2, 3, 42, 99]) {
     const j = J.nuevoJuego(semilla);
     cuidar(j);
@@ -94,7 +116,7 @@ test('un jugador cuidadoso cosecha, gana monedas y logros', () => {
       sembrarTodo(j, 'lechuga');
     }
     assert.ok(j.stats.cosechas >= 18, `semilla ${semilla}: solo ${j.stats.cosechas} cosechas`);
-    assert.ok(j.monedas > J.nuevoJuego().monedas, `semilla ${semilla}: ${j.monedas} monedas`);
+    assert.ok(j.stats.gramos >= 3000, `semilla ${semilla}: ${j.stats.gramos} g`);
     assert.ok(logros.some((l) => l.id === 'primeraCosecha'));
     assert.ok(J.nivelJugador(j) >= 3);
   }
@@ -139,7 +161,7 @@ for (const region of ['occidente', 'oriente']) {
         sembrarTodo(j, 'lechuga');
       }
       assert.ok(j.stats.cosechas >= 18, `${region} semilla ${semilla}: ${j.stats.cosechas} cosechas`);
-      assert.ok(j.monedas > 150, `${region} semilla ${semilla}: ${j.monedas} monedas`);
+      assert.ok(j.stats.gramos >= 3000, `${region} semilla ${semilla}: ${j.stats.gramos} g`);
       assert.strictEqual(j.dia, 41);
     }
   });
@@ -199,7 +221,11 @@ test('las partidas guardadas antes se actualizan', () => {
   delete viejo.region; delete viejo.fase; delete viejo.invernadero; delete viejo.pronostico;
   viejo.macetas[0] = { cultivo: 'albahaca', crecimiento: 50, salud: 90, sumaSalud: 0, dias: 3, muerta: false };
   viejo.stats.cultivos = { espinaca: 2 };
+  viejo.monedas = 320;
+  delete viejo.stats.mejorCalidad;
   J.migrar(viejo);
+  assert.strictEqual(viejo.monedas, undefined);
+  assert.strictEqual(viejo.stats.mejorCalidad, 0);
   assert.strictEqual(viejo.region, 'occidente');
   assert.strictEqual(viejo.macetas[0].cultivo, 'acelga');
   assert.deepStrictEqual(viejo.stats.cultivos, { kale: 2 });

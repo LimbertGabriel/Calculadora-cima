@@ -239,18 +239,22 @@ section { display: grid; gap: 12px; }
 }
 .cabecera h1 { font-size: 1.35rem; letter-spacing: 0.2px; }
 .cabecera p { margin: 0; font-size: 0.8rem; opacity: 0.85; }
-.insignia-puntos {
+.contacto-cabecera {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px 6px 10px;
+  min-height: 40px;
+  padding: 6px 14px 6px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.16);
+  color: #fff;
   font-family: var(--fuente-titulo);
-  font-size: 1.05rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-decoration: none;
+  flex-shrink: 0;
 }
-.insignia-puntos svg { font-size: 18px; color: #ffd66b; }
-.insignia-puntos svg use { fill: #ffd66b; stroke: #ffd66b; }
+.contacto-cabecera svg { font-size: 20px; }
 
 /* ============ Controles ============ */
 button, .boton {
@@ -360,7 +364,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .hud-item b { font-family: var(--fuente-titulo); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
 .hud-icono { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; font-size: 22px; flex-shrink: 0; }
 .hud-icono.sol { background: var(--sol-claro); color: var(--sol-fuerte); }
-.hud-icono.moneda { background: var(--ambar-claro); color: var(--sol-fuerte); }
+.hud-icono.cosecha { background: var(--hoja-claro); color: var(--hoja); }
 .hud-nivel #j-xp-texto { font-size: 0.95rem; color: var(--suave); }
 .anillo {
   --p: 0;
@@ -427,8 +431,8 @@ input:focus, select:focus { border-color: var(--hoja); }
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--sol);
-  color: #3a2400;
+  background: var(--hoja);
+  color: #fff;
   font-family: var(--fuente-titulo);
   font-weight: 800;
   font-size: 1rem;
@@ -519,8 +523,7 @@ input:focus, select:focus { border-color: var(--hoja); }
 .accion[data-insumo="agua"] { --c: var(--agua); --c-claro: var(--agua-claro); }
 .accion[data-insumo="cambio"] { --c: var(--agua); --c-claro: var(--agua-claro); }
 .accion[data-insumo="tratamiento"] { --c: var(--sol-fuerte); --c-claro: var(--sol-claro); }
-.costo { display: inline-flex; align-items: center; gap: 3px; color: var(--suave); font-weight: 600; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-.costo svg { color: var(--sol-fuerte); }
+.accion .efecto { color: var(--suave); font-weight: 600; font-size: 0.72rem; }
 
 .pasar-dia {
   width: 100%;
@@ -562,8 +565,9 @@ input:focus, select:focus { border-color: var(--hoja); }
 .mejora h3 { font-size: 1rem; }
 .mejora p { margin: 2px 0 4px; font-size: 0.85rem; color: var(--suave); }
 .mejora a { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 700; color: var(--hoja); text-decoration: none; }
-.mejora button { min-height: 42px; padding: 8px 12px; border-radius: 12px; background: var(--sol-claro); color: var(--sol-fuerte); font-variant-numeric: tabular-nums; }
-.mejora button:disabled { background: var(--barra); color: var(--suave); }
+.mejora button { min-height: 42px; padding: 8px 14px; border-radius: 12px; font-size: 0.92rem; }
+.mejora button:disabled { background: var(--hoja-claro); color: var(--hoja); }
+.mejora button.bloqueado { background: var(--barra); color: var(--suave); gap: 4px; font-size: 0.82rem; padding: 8px 10px; white-space: nowrap; }
 .mejora.instalada .mejora-icono { background: var(--hoja-claro); color: var(--hoja); }
 .insignia-mini { font-family: var(--fuente-texto); font-size: 0.7rem; font-weight: 700; background: var(--hoja-claro); color: var(--hoja); padding: 2px 8px; border-radius: 99px; vertical-align: middle; }
 
@@ -581,10 +585,18 @@ input:focus, select:focus { border-color: var(--hoja); }
 .logro-icono { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--barra); color: var(--suave); font-size: 22px; }
 .logro b { font-family: var(--fuente-titulo); font-size: 1rem; line-height: 1.2; }
 .logro small { color: var(--suave); font-size: 0.8rem; line-height: 1.3; }
-.logro .premio { font-family: var(--fuente-titulo); font-weight: 800; font-size: 0.9rem; color: var(--suave); }
+.logro .premio { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 0.78rem; color: var(--ok); }
 .logro.obtenido { background: linear-gradient(160deg, var(--sol-claro), var(--superficie) 70%); }
 .logro.obtenido .logro-icono { background: var(--sol); color: #3a2200; }
-.logro.obtenido .premio { color: var(--ok); }
+
+/* Resumen de cifras (progreso del juego y registro) */
+.resumen-juego, .resumen-registro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.resumen-registro:empty { display: none; }
+.dato { display: grid; justify-items: center; gap: 2px; padding: 12px 6px; border-radius: 16px; background: var(--superficie); box-shadow: var(--sombra); text-align: center; }
+.dato b { font-family: var(--fuente-titulo); font-size: 1.35rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.dato small { color: var(--suave); font-size: 0.74rem; font-weight: 600; line-height: 1.2; }
+.siguiente { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 14px; background: var(--superficie-2); font-size: 0.9rem; }
+.siguiente svg { flex-shrink: 0; font-size: 1.2em; color: var(--suave); }
 
 /* ============ CTA y Aprende ============ */
 .cta {
@@ -637,38 +649,42 @@ input:focus, select:focus { border-color: var(--hoja); }
 .progreso { height: 10px; border-radius: 99px; background: var(--barra); overflow: hidden; }
 .progreso span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--hoja), var(--lima)); }
 
-/* ============ Puntos ============ */
-.saldo-hero {
-  display: grid;
-  gap: 2px;
-  padding: 22px 20px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #cbd600, #8fb31c 55%, #1b8b8d);
-  color: #1c2e1c;
-  box-shadow: 0 8px 22px rgba(143, 179, 28, 0.35);
+/* ============ Sistemas, historial y respaldo ============ */
+.borrar {
+  min-height: 40px;
+  width: 40px;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--suave);
 }
-.saldo-hero small { font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; font-size: 0.75rem; }
-.saldo-cifra { font-family: var(--fuente-titulo); font-weight: 800; font-size: 3.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
-.saldo-extra { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.9rem; font-weight: 600; }
-.saldo-extra svg { font-size: 1.3em; }
-.recompensas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.recompensa {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding: 14px;
-  border-radius: var(--radio);
-  background: var(--superficie);
-  box-shadow: var(--sombra);
-}
-.recompensa-icono { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: var(--sol-claro); color: var(--sol-fuerte); font-size: 24px; }
-.recompensa b { display: block; }
-.recompensa small { color: var(--suave); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
-.recompensa .progreso { margin-top: 6px; height: 6px; }
-.recompensa .progreso span { background: linear-gradient(90deg, #cbd600, #8fb31c); }
-.recompensa button { min-height: 42px; padding: 8px 14px; border-radius: 12px; }
-.respaldo { margin-top: 8px; }
+.borrar svg { font-size: 1.25em; }
+.borrar:hover { background: var(--mal-claro); color: var(--mal); }
+.sistema-cab { align-items: center; }
+.sistema-fechas { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; color: var(--suave); font-size: 0.88rem; }
+.sistema-fechas span { display: inline-flex; align-items: center; gap: 5px; }
+.sistema-fechas svg { font-size: 1.15em; }
+.listo-cosecha { color: var(--ok); font-weight: 700; }
+.sistema-medicion { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sistema-medicion small { color: var(--suave); font-size: 0.8rem; }
+.chip svg { font-size: 1.1em; }
+.chip-ok { background: var(--hoja-claro); border-color: transparent; color: var(--ok); }
+.chip-alerta { background: var(--sol-claro); border-color: transparent; color: var(--aviso); }
+.historial-icono { display: grid; place-items: center; flex-shrink: 0; font-size: 18px; }
+.aviso-texto { color: var(--aviso); }
+.lista li .borrar { min-height: 34px; width: 34px; margin-right: -6px; }
+.respaldo { margin-top: 0; }
+.respaldo .boton, .respaldo button { font-size: 0.92rem; }
+
+/* ============ Contacto ============ */
+.contacto { display: grid; padding: 4px 16px 12px; }
+.contacto-fila { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-bottom: 1px solid var(--linea); color: var(--texto); text-decoration: none; }
+.contacto-fila span:last-child { display: grid; line-height: 1.25; min-width: 0; }
+.contacto-fila small { color: var(--suave); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.contacto-fila b { overflow-wrap: anywhere; }
+.contacto-icono { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: var(--hoja-claro); color: var(--hoja); font-size: 22px; }
+.contacto-nota { margin: 10px 0 0; color: var(--suave); font-size: 0.88rem; }
 
 /* ============ Barra inferior ============ */
 .pestanas {
@@ -786,10 +802,6 @@ input:focus, select:focus { border-color: var(--hoja); }
   .hud { grid-template-columns: 1fr 1fr; }
   .hud-nivel { grid-column: 1 / -1; order: 3; }
 }
-.recompensa .progreso { display: block; }
-.sistema-cab b { font-family: var(--fuente-titulo); color: var(--hoja); }
-button .costo { color: inherit; font-size: 0.95rem; font-weight: 800; }
-button .costo svg { color: inherit; }
 
 .pasos { margin: 10px 0 0; padding-left: 22px; display: grid; gap: 4px; font-size: 0.93rem; }
 .aviso-quimico { padding: 10px 12px; border-radius: 12px; background: var(--sol-claro); font-size: 0.88rem !important; }

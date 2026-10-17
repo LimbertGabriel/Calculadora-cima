@@ -24,10 +24,10 @@ test('volumen inválido lanza error', () => {
   assert.throws(() => C.calcularDosis({ litros: 'abc' }));
 });
 
-test('evaluación de medición en rango da puntos extra', () => {
+test('evaluación de medición en rango', () => {
   const e = C.evaluarMedicion('lechuga', { ph: 6, ec: 1 });
   assert.ok(e.enRango);
-  assert.strictEqual(C.puntosPorMedicion(e), 15);
+  assert.strictEqual(e.consejos.length, 0);
 });
 
 test('evaluación fuera de rango da consejos', () => {
@@ -35,11 +35,19 @@ test('evaluación fuera de rango da consejos', () => {
   assert.strictEqual(e.ph, 'alto');
   assert.strictEqual(e.ec, 'bajo');
   assert.strictEqual(e.consejos.length, 2);
-  assert.strictEqual(C.puntosPorMedicion(e), 10);
 });
 
-test('saldo suma y resta movimientos', () => {
-  assert.strictEqual(C.saldo([{ puntos: 50 }, { puntos: 100 }, { puntos: -150 }]), 0);
+test('la app ya no tiene puntos ni recompensas', () => {
+  assert.strictEqual(C.PUNTOS, undefined);
+  assert.strictEqual(C.RECOMPENSAS, undefined);
+});
+
+test('fechas en hora local, sin desfase de zona horaria', () => {
+  // 15 de octubre a las 22:00 sigue siendo 15 de octubre (en UTC ya sería el 16).
+  assert.strictEqual(C.fechaLocal(new Date(2026, 9, 15, 22, 0)), '2026-10-15');
+  assert.strictEqual(C.diasEntre('2026-10-01', '2026-10-15'), 14);
+  assert.strictEqual(C.diasEntre('2026-02-27', '2026-03-02'), 3);
+  assert.strictEqual(C.sumarDias('2026-10-15', 45), '2026-11-29');
 });
 
 test('un juego de 200 L llena 10 tanques de 20 L', () => {

@@ -1,24 +1,24 @@
 # Calculadora-cima · Hidroponía CIMA
 
-Calcula dosis de solución nutritiva, registra tu cultivo hidropónico y gana **puntos CIMA**.
-
-Es el paso 1 del programa de fidelización de Hidroponía CIMA: una app web, pensada para usarse
-desde el celular, sin blockchain todavía. Cuando se valide con clientes reales, los puntos
-podrán migrarse a un token/NFT.
+Aprende a cultivar en hidroponía jugando, calcula tu solución nutritiva y lleva el registro de
+tu cultivo hidropónico. Es una app web pensada para usarse desde el celular, sin monedas ni puntos:
+el progreso se mide en lo que cosechas.
 
 ## Funciones
 
 - **Mi Huerto CIMA (juego)**: simulador hidropónico por días. El tanque cambia solo como en la vida real
   (el pH sube, las plantas consumen nutrientes, el agua se evapora, la temperatura varía, aparecen plagas)
   y el jugador lo corrige con nutrientes A + B + C, ácido nítrico (baja pH), agua o hidróxido de potasio (sube pH) y jabón potásico. Las plantas crecen, se
-  enferman o mueren según el cuidado; al cosechar ganas monedas y experiencia, subes de nivel y
-  desbloqueas cultivos (lechuga → albahaca → espinaca → fresa → tomate). La tienda de mejoras tiene un
-  botón de WhatsApp para pedir el producto real, y los **logros dan puntos CIMA reales**.
+  enferman o mueren según el cuidado. Al cosechar sumas gramos y una nota de calidad, ganas experiencia,
+  subes de nivel y desbloqueas cultivos (lechuga → acelga → kale → apio → fresa → tomate) y mejoras del
+  sistema. Cada mejora tiene un botón de WhatsApp para pedir el producto real. Los logros marcan tu avance.
 - **Calculadora**: mL de solución A y B según litros de agua, cultivo, fórmula
   (fórmula CIMA de 3 partes: 5 mL/L de A, B y C, o personalizada) y etapa (plántula = media dosis).
-- **Mis sistemas**: registro de cada sistema hidropónico (tipo, cultivo, tanque, fecha de siembra).
-- **Registro**: mediciones de pH y EC con consejos automáticos si están fuera de rango, y cosechas en gramos.
-- **Puntos**: saldo, recompensas canjeables, historial de movimientos y respaldo JSON.
+- **Sistemas**: catálogo con pedido por WhatsApp y registro de cada sistema (tipo, cultivo, tanque, fecha de
+  siembra) con avance, fecha estimada de cosecha y estado de la última medición. Se pueden borrar.
+- **Registro**: mediciones de pH, EC y temperatura con consejos automáticos, cosechas en gramos, historial
+  (con opción de borrar) y respaldo en archivo JSON.
+- **Club CIMA**: planes de suscripción y datos de contacto.
 
 Los datos se guardan en el navegador del cliente (`localStorage`). La app es instalable en el
 celular ("Agregar a pantalla de inicio") y funciona sin internet.
@@ -26,12 +26,12 @@ celular ("Agregar a pantalla de inicio") y funciona sin internet.
 ## Configuración
 
 - **WhatsApp de Hidroponía CIMA**: pon tu número en `js/config.js` para que los botones de compra lleguen a ti.
-- **Juego**: cultivos, precios, insumos, mejoras y logros están en `js/juego.js`
+- **Juego**: cultivos, insumos, mejoras (y el nivel que piden) y logros están en `js/juego.js`
   (`PLANTAS`, `INSUMOS`, `MEJORAS`, `LOGROS`).
 - **Al publicar cambios**, sube la versión de `CACHE` en `sw.js` para que los celulares descarguen la nueva versión.
 
-Fórmulas, rangos por cultivo, puntos y recompensas están en `js/calc.js`
-(`FORMULAS`, `CULTIVOS`, `PUNTOS`, `RECOMPENSAS`). Los rangos de pH/EC son orientativos:
+Fórmulas y rangos por cultivo están en `js/calc.js`
+(`FORMULAS`, `CULTIVOS`). Los rangos de pH/EC son orientativos:
 ajústalos a tus variedades y a tu fórmula.
 
 ## Uso

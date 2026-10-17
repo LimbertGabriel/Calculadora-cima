@@ -14,48 +14,50 @@
   const NIVEL_MINIMO = 30;
 
   // Parámetros de juego por cultivo; los rangos de pH/EC vienen de la calculadora.
+  // `gramos` es lo que rinde una planta cosechada con salud perfecta.
   const PLANTAS = {
-    lechuga: { dias: 10, semilla: 10, precio: 35, gramos: 250, xp: 20, nivel: 1 },
-    acelga: { dias: 12, semilla: 12, precio: 45, gramos: 400, xp: 25, nivel: 2 },
-    kale: { dias: 12, semilla: 15, precio: 55, gramos: 250, xp: 25, nivel: 3 },
-    apio: { dias: 16, semilla: 25, precio: 90, gramos: 600, xp: 40, nivel: 4 },
-    fresa: { dias: 18, semilla: 30, precio: 110, gramos: 300, xp: 45, nivel: 5 },
-    tomate: { dias: 22, semilla: 40, precio: 150, gramos: 900, xp: 60, nivel: 6 },
+    lechuga: { dias: 10, gramos: 250, xp: 20, nivel: 1 },
+    acelga: { dias: 12, gramos: 400, xp: 25, nivel: 2 },
+    kale: { dias: 12, gramos: 250, xp: 25, nivel: 3 },
+    apio: { dias: 16, gramos: 600, xp: 40, nivel: 4 },
+    fresa: { dias: 18, gramos: 300, xp: 45, nivel: 5 },
+    tomate: { dias: 22, gramos: 900, xp: 60, nivel: 6 },
   };
 
+  // `efecto` es el texto corto que se muestra en cada botón.
   const INSUMOS = {
-    nutrientes: { nombre: 'Nutrientes A + B + C', costo: 2 },
-    phMenos: { nombre: 'Ácido nítrico', costo: 1 },
-    phMas: { nombre: 'Hidróxido de potasio', costo: 1 },
-    agua: { nombre: 'Rellenar agua', costo: 0 },
-    cambio: { nombre: 'Cambiar toda el agua', costo: 3 },
-    tratamiento: { nombre: 'Jabón potásico', costo: 10 },
+    nutrientes: { nombre: 'Nutrientes A + B + C', efecto: 'Sube la EC' },
+    phMenos: { nombre: 'Ácido nítrico', efecto: 'Baja el pH' },
+    phMas: { nombre: 'Hidróxido de potasio', efecto: 'Sube el pH' },
+    agua: { nombre: 'Rellenar agua', efecto: 'Llena y diluye' },
+    cambio: { nombre: 'Cambiar toda el agua', efecto: 'Agua nueva' },
+    tratamiento: { nombre: 'Jabón potásico', efecto: 'Quita plagas' },
   };
 
+  // Las mejoras se desbloquean al subir de nivel. `niveles[k]` es el nivel que pide la unidad k + 1.
   const MEJORAS = {
-    modulo: { nombre: 'Módulo extra (+3 macetas)', costo: 150, max: 2, descripcion: 'Más espacio para cultivar.' },
-    aislado: { nombre: 'Tanque aislado', costo: 120, max: 1, descripcion: 'La temperatura del agua cambia mucho menos.' },
-    dosificador: { nombre: 'Dosificador automático', costo: 250, max: 1, descripcion: 'Agrega nutrientes solo cuando la EC baja (cobra el insumo).' },
-    controladorPh: { nombre: 'Controlador de pH', costo: 300, max: 1, descripcion: 'Corrige el pH solo cada día (cobra el insumo).' },
+    modulo: { nombre: 'Módulo extra (+3 macetas)', niveles: [2, 5], descripcion: 'Más espacio para cultivar.' },
+    aislado: { nombre: 'Tanque aislado', niveles: [2], descripcion: 'La temperatura del agua cambia mucho menos.' },
+    dosificador: { nombre: 'Dosificador automático', niveles: [3], descripcion: 'Agrega nutrientes solo cuando la EC baja.' },
+    controladorPh: { nombre: 'Controlador de pH', niveles: [4], descripcion: 'Corrige el pH solo cada día.' },
   };
 
   const LOGROS = {
-    primeraCosecha: { nombre: 'Primera cosecha', descripcion: 'Cosecha tu primera planta.', puntos: 30 },
-    semanaPerfecta: { nombre: 'Semana perfecta', descripcion: '7 días seguidos con todo en rango.', puntos: 40 },
-    diezCosechas: { nombre: 'Huerto productivo', descripcion: 'Cosecha 10 plantas.', puntos: 60 },
-    coleccion: { nombre: 'Colección completa', descripcion: 'Cosecha los 6 cultivos.', puntos: 100 },
-    sinHeladas: { nombre: 'Guardián del invernadero', descripcion: 'Protege tus plantas de 5 heladas.', puntos: 40 },
-    kilo: { nombre: 'Primer kilo', descripcion: 'Cosecha 1 kg en total.', puntos: 30 },
+    primeraCosecha: { nombre: 'Primera cosecha', descripcion: 'Cosecha tu primera planta.' },
+    semanaPerfecta: { nombre: 'Semana perfecta', descripcion: '7 días seguidos con todo en rango.' },
+    diezCosechas: { nombre: 'Huerto productivo', descripcion: 'Cosecha 10 plantas.' },
+    coleccion: { nombre: 'Colección completa', descripcion: 'Cosecha los 6 cultivos.' },
+    sinHeladas: { nombre: 'Guardián del invernadero', descripcion: 'Protege tus plantas de 5 heladas.' },
+    kilo: { nombre: 'Primer kilo', descripcion: 'Cosecha 1 kg en total.' },
+    calidad: { nombre: 'Cosecha de primera', descripcion: 'Cosecha una planta con 95 % de calidad o más.' },
   };
 
   const MACETAS_INICIALES = 6;
-  const MONEDAS_INICIALES = 150;
 
   function nuevoJuego(semilla = Date.now(), region = 'occidente') {
     const j = {
       version: 1,
       dia: 1,
-      monedas: MONEDAS_INICIALES,
       xp: 0,
       semilla: semilla >>> 0,
       agua: { ph: AGUA_GRIFO.ph, ec: AGUA_GRIFO.ec, nivel: 100, temp: 20 },
@@ -63,7 +65,7 @@
       macetas: Array(MACETAS_INICIALES).fill(null),
       mejoras: {},
       racha: 0,
-      stats: { cosechas: 0, gramos: 0, cultivos: {} },
+      stats: { cosechas: 0, gramos: 0, cultivos: {}, mejorCalidad: 0 },
       logros: {},
       eventos: ['¡Bienvenido a tu invernadero! El tanque tiene agua del grifo: agrega nutrientes y baja el pH antes de sembrar.'],
       region,
@@ -138,12 +140,6 @@
     return { ok: false, mensaje };
   }
 
-  function pagar(j, costo) {
-    if (j.monedas < costo) return false;
-    j.monedas -= costo;
-    return true;
-  }
-
   // Dosis real equivalente, para enseñar a usar la calculadora.
   function dosisReal() {
     const d = Calc.calcularDosis({ litros: LITROS });
@@ -158,7 +154,6 @@
     const a = j.agua;
     if (id === 'tratamiento' && !j.plaga) return error('No hay plaga que tratar.');
     if (id === 'agua' && a.nivel >= 99) return error('El tanque ya está lleno.');
-    if (!pagar(j, insumo.costo)) return error('No tienes monedas suficientes.');
 
     let mensaje;
     switch (id) {
@@ -200,7 +195,6 @@
     if (indice < 0 || indice >= j.macetas.length) return error('Maceta inválida.');
     if (j.macetas[indice]) return error('Esa maceta está ocupada.');
     if (nivelJugador(j) < p.nivel) return error(`Se desbloquea en el nivel ${p.nivel}.`);
-    if (!pagar(j, p.semilla)) return error('No tienes monedas suficientes.');
     j.macetas[indice] = { cultivo, crecimiento: 0, salud: 100, sumaSalud: 0, dias: 0, muerta: false };
     return { ok: true, mensaje: `Sembraste ${Calc.CULTIVOS[cultivo].nombre.toLowerCase()}.` };
   }
@@ -210,15 +204,16 @@
     if (!m || m.muerta || m.crecimiento < 100) return error('Esta planta aún no está lista.');
     const p = PLANTAS[m.cultivo];
     const calidad = m.dias ? m.sumaSalud / m.dias / 100 : 1;
-    const monedas = Math.round(p.precio * (0.4 + 0.6 * calidad));
     const gramos = Math.round(p.gramos * (0.5 + 0.5 * calidad));
-    j.monedas += monedas;
+    const pct = Math.round(calidad * 100);
     j.xp += p.xp;
     j.stats.cosechas += 1;
     j.stats.gramos += gramos;
     j.stats.cultivos[m.cultivo] = (j.stats.cultivos[m.cultivo] || 0) + 1;
+    j.stats.mejorCalidad = Math.max(j.stats.mejorCalidad || 0, pct);
     j.macetas[indice] = null;
-    return { ok: true, mensaje: `Cosechaste ${gramos} g de ${Calc.CULTIVOS[m.cultivo].nombre.toLowerCase()} (+${monedas} monedas, calidad ${Math.round(calidad * 100)} %).`, monedas, gramos };
+    const consejo = pct >= 90 ? '¡Excelente manejo!' : pct >= 70 ? 'Buen trabajo.' : 'Mantén el pH y la EC en rango para cosechar más.';
+    return { ok: true, mensaje: `Cosechaste ${gramos} g de ${Calc.CULTIVOS[m.cultivo].nombre.toLowerCase()} con ${pct} % de calidad. ${consejo}`, gramos, calidad: pct };
   }
 
   function retirar(j, indice) {
@@ -227,12 +222,20 @@
     return { ok: true, mensaje: 'Maceta liberada.' };
   }
 
-  function comprarMejora(j, id) {
+  // Nivel que pide la siguiente unidad de una mejora (null si ya está completa).
+  function nivelMejora(j, id) {
+    const mejora = MEJORAS[id];
+    const actual = j.mejoras[id] || 0;
+    return actual < mejora.niveles.length ? mejora.niveles[actual] : null;
+  }
+
+  function instalarMejora(j, id) {
     const mejora = MEJORAS[id];
     if (!mejora) return error('Mejora desconocida.');
     const actual = j.mejoras[id] || 0;
-    if (actual >= mejora.max) return error('Ya tienes esta mejora.');
-    if (!pagar(j, mejora.costo)) return error('No tienes monedas suficientes.');
+    const nivel = nivelMejora(j, id);
+    if (nivel == null) return error('Ya tienes esta mejora.');
+    if (nivelJugador(j) < nivel) return error(`Se desbloquea en el nivel ${nivel}.`);
     j.mejoras[id] = actual + 1;
     if (id === 'modulo') j.macetas.push(null, null, null);
     return { ok: true, mensaje: `Instalaste: ${mejora.nombre}.` };
@@ -255,13 +258,13 @@
     const r = rangoTanque(j);
     if (!r.compatible) return;
     const a = j.agua;
-    if (j.mejoras.dosificador && a.ec < r.ec[0] && pagar(j, INSUMOS.nutrientes.costo)) {
+    if (j.mejoras.dosificador && a.ec < r.ec[0]) {
       a.ec = r2(a.ec + DOSIS_EC * (100 / a.nivel));
       eventos.push('El dosificador agregó nutrientes.');
     }
     if (j.mejoras.controladorPh) {
       const objetivo = (r.ph[0] + r.ph[1]) / 2;
-      if (distancia(a.ph, r.ph) > 0 && pagar(j, INSUMOS.phMenos.costo)) {
+      if (distancia(a.ph, r.ph) > 0) {
         a.ph = r2(objetivo);
         eventos.push('El controlador corrigió el pH.');
       }
@@ -424,6 +427,9 @@
     if (!j.fase) j.fase = 'dia';
     if (!j.invernadero) j.invernadero = nuevoInvernadero();
     if (j.heladasEvitadas == null) j.heladasEvitadas = 0;
+    // La app ya no usa monedas.
+    delete j.monedas;
+    if (j.stats.mejorCalidad == null) j.stats.mejorCalidad = 0;
     for (const m of j.macetas) if (m && CULTIVO_REEMPLAZO[m.cultivo]) m.cultivo = CULTIVO_REEMPLAZO[m.cultivo];
     for (const [viejo, nuevo] of Object.entries(CULTIVO_REEMPLAZO)) {
       if (j.stats.cultivos[viejo]) {
@@ -492,12 +498,6 @@
     const perfecto = vivas.length > 0 && diagnostico(j).length === 0 && rangoTanque(j).compatible;
     j.racha = perfecto ? j.racha + 1 : 0;
 
-    // Rescate: si te quedaste sin monedas ni plantas, Hidroponía CIMA te regala semillas.
-    if (!j.macetas.some((m) => m && !m.muerta) && j.monedas < PLANTAS.lechuga.semilla + INSUMOS.nutrientes.costo * 3) {
-      j.monedas += 30;
-      eventos.push('Hidroponía CIMA te regaló 30 monedas para volver a empezar.');
-    }
-
     j.dia += 1;
     j.eventos = eventos;
     return eventos;
@@ -512,6 +512,7 @@
       coleccion: Object.keys(PLANTAS).every((c) => j.stats.cultivos[c]),
       kilo: j.stats.gramos >= 1000,
       sinHeladas: (j.heladasEvitadas || 0) >= 5,
+      calidad: (j.stats.mejorCalidad || 0) >= 95,
     };
     const nuevos = [];
     for (const [id, ok] of Object.entries(cumple)) {
@@ -526,7 +527,7 @@
   const api = {
     LITROS, PLANTAS, INSUMOS, MEJORAS, LOGROS, TEMP_IDEAL, NIVEL_MINIMO, REGIONES, CONFORT_AIRE,
     nuevoJuego, migrar, nivelJugador, rangoTanque, diagnostico, dosisReal,
-    usarInsumo, sembrar, cosechar, retirar, comprarMejora, pasarDia, revisarLogros,
+    usarInsumo, sembrar, cosechar, retirar, nivelMejora, instalarMejora, pasarDia, revisarLogros,
     climaInvernadero, efectoClima, mejorConfiguracion, cambiarInvernadero, cambiarRegion, pasarFase,
   };
 
